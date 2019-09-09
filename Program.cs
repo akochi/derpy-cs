@@ -12,16 +12,10 @@ namespace derpy
 
     class Program
     {
-        private readonly DiscordSocketClient _client;
-        private readonly CommandService _commands;
+        private readonly DiscordSocketClient _client = new DiscordSocketClient();
+        private readonly CommandService _commands = new CommandService();
 
         static async Task Main() => await new Program().RunAsync();
-
-        public Program()
-        {
-            _client = new DiscordSocketClient();
-            _commands = new CommandService();
-        }
 
         private async Task RunAsync()
         {
