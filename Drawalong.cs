@@ -104,6 +104,7 @@ namespace derpy
         public bool Running => !(_run is null);
 
         private static readonly Result NO_CURRENT = Result.FromError("There is no drawalong currently running!");
+        private static readonly Result RUNNING = Result.FromError("You can't do that while the drawalong is running.");
 
         private Task<Discord.Rest.RestUserMessage> SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 
@@ -194,6 +195,24 @@ namespace derpy
             await SendAsync(
                 $"{_instance.GetMentions()}\n**Drawalong has started!** Topic is\"{_instance.Topic}\". Quick, to your pencils!"
             );
+            return Result.FromSuccess();
+        }
+
+        public async Task<Result> Boop(SocketUser user)
+        {
+            if (!Active) { return NO_CURRENT; }
+            if (Running) { return RUNNING; }
+
+            await SendAsync($"{user.Username} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
+            return Result.FromSuccess();
+        }
+
+        public async Task<Result> Notify()
+        {
+            if (!Active) { return NO_CURRENT; }
+            if (Running) { return RUNNING; }
+
+            await SendAsync($"The drawalong is about to start! Are you ready?\n{_instance.GetMentions()}");
             return Result.FromSuccess();
         }
     }
