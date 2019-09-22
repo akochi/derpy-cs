@@ -67,7 +67,7 @@ namespace derpy
 
             private static Timer CreateTimer(int timeout, Action action)
             {
-                var timer = new Timer(timeout * 1000);
+                var timer = new Timer(timeout * 1000 * 60);
                 timer.Elapsed += (source, args) => action.Invoke();
                 timer.AutoReset = false;
                 timer.Enabled = true;
@@ -77,9 +77,9 @@ namespace derpy
             public Run()
             {
                 _timers = new Timer[] {
-                    CreateTimer(5, () => Reminder?.Invoke(10)),
-                    CreateTimer(10, () => Reminder?.Invoke(5)),
-                    CreateTimer(15, () => Finished?.Invoke())
+                    CreateTimer(20, () => Reminder?.Invoke(10)),
+                    CreateTimer(25, () => Reminder?.Invoke(5)),
+                    CreateTimer(30, () => Finished?.Invoke())
                 };
             }
 
