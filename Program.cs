@@ -34,7 +34,14 @@ namespace derpy
         {
             if (!result.IsSuccess)
             {
-                await context.Channel.SendMessageAsync($"Error: {result.ErrorReason}");
+                if (result is Drawalong.Result)
+                {
+                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                }
+                else
+                {
+                    await context.Channel.SendMessageAsync($"There has been an error :(\n```${result.Error.ToString()}```");
+                }
             }
         }
 
