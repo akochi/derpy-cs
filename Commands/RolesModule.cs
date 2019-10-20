@@ -24,6 +24,9 @@ namespace derpy.Commands
         [Command("equestrian")]
         public async Task Equestrian() => await SetRole(Context.Guild, Context.Message.Author, "Equestrians");
 
+        [Command("clear")]
+        public async Task Clear() => await ClearRoles(Context.Guild, Context.Message.Author);
+
         private async Task SetRole(SocketGuild guild, SocketUser user, string roleName)
         {
             var guildUser = guild.GetUser(user.Id);
@@ -43,6 +46,19 @@ namespace derpy.Commands
             var newRole = guild.Roles.First(role => role.Name == roleName);
             await guildUser.AddRoleAsync(newRole);
             await ReplyAsync($"You are now part of the {roleName}, {guildUser.Nickname}!");
+        }
+
+        private async Task ClearRoles(SocketGuild guild, SocketUser user) {
+            var guildUser = guild.GetUser(user.Id);
+            var existingRoles = guildUser.Roles.Where(role => ROLES.Contains(role.Name)).ToArray();
+
+            if (existingRoles.Length == 0) {
+                await ReplyAsync("Mh, I found nothing to remove...");
+                return;
+            }
+
+            await guildUser.RemoveRolesAsync(existingRoles);
+            await ReplyAsync("Here you go, just as new!");
         }
     }
 }
