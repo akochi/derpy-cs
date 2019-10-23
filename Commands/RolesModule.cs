@@ -27,6 +27,9 @@ namespace derpy.Commands
         [Command("clear")]
         public async Task Clear() => await ClearRoles(Context.Guild, Context.Message.Author);
 
+        [Command("stats")]
+        public async Task Stats() => await ShowStats(Context.Guild);
+
         private async Task SetRole(SocketGuild guild, SocketUser user, string roleName)
         {
             var guildUser = guild.GetUser(user.Id);
@@ -61,6 +64,19 @@ namespace derpy.Commands
 
             await guildUser.RemoveRolesAsync(existingRoles);
             await ReplyAsync("Here you go, just as new!");
+        }
+
+        private async Task ShowStats(SocketGuild guild)
+        {
+            var remainingUsers = guild.MemberCount;
+            var groupStats = guild.Roles.Where(role => ROLES.Contains(role.Name)).Select(role =>
+            {
+                var count = role.Members.Count();
+                remainingUsers -= count;
+                return $"{role.Name}: {count}";
+            });
+
+            await ReplyAsync($"{string.Join("\n", groupStats)}\nUsers without roles: {remainingUsers}");
         }
     }
 }
