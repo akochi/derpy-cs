@@ -30,7 +30,7 @@ namespace derpy.Commands
         private async Task SetRole(SocketGuild guild, SocketUser user, string roleName)
         {
             var guildUser = guild.GetUser(user.Id);
-            var existingRole = guildUser.Roles.First(role => ROLES.Contains(role.Name));
+            var existingRole = guildUser.Roles.FirstOrDefault(role => ROLES.Contains(role.Name));
 
             if (existingRole != null)
             {
@@ -48,11 +48,13 @@ namespace derpy.Commands
             await ReplyAsync($"You are now part of the {roleName}, {guildUser.Nickname}!");
         }
 
-        private async Task ClearRoles(SocketGuild guild, SocketUser user) {
+        private async Task ClearRoles(SocketGuild guild, SocketUser user)
+        {
             var guildUser = guild.GetUser(user.Id);
             var existingRoles = guildUser.Roles.Where(role => ROLES.Contains(role.Name)).ToArray();
 
-            if (existingRoles.Length == 0) {
+            if (existingRoles.Length == 0)
+            {
                 await ReplyAsync("Mh, I found nothing to remove...");
                 return;
             }

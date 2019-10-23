@@ -38,9 +38,13 @@ namespace derpy
                 {
                     await context.Channel.SendMessageAsync(result.ErrorReason);
                 }
+                else if (result is ExecuteResult commandResult && commandResult.Exception != null)
+                {
+                    await context.Channel.SendMessageAsync($"There has been an exception :(\n```{commandResult.Exception}```");
+                }
                 else
                 {
-                    await context.Channel.SendMessageAsync($"There has been an error :(\n```${result.Error.ToString()}```");
+                    await context.Channel.SendMessageAsync($"There has been an error :(\n```{result.Error}```");
                 }
             }
         }
