@@ -9,7 +9,7 @@ namespace derpy.Commands
         public async Task Hug()
         {
             var guildUser = Context.Guild.GetUser(Context.User.Id);
-            await ReplyAsync($"_hugs {guildUser.Nickname}_");
+            await ReplyAsync($"_hugs {guildUser.Name()}_");
         }
     }
 }
