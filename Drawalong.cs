@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+
+static class UserExtensions
+{
+    public static string Name(this IGuildUser user) => string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
+}
 
 namespace derpy
 {
@@ -24,33 +30,33 @@ namespace derpy
         private class Instance
         {
             public string Topic { get; set; }
-            public SocketTextChannel Channel { get; }
+            public ITextChannel Channel { get; }
             public bool Empty => _attendees.Count == 0;
-            private readonly HashSet<SocketUser> _attendees;
+            private readonly HashSet<IGuildUser> _attendees;
 
             public string GetMentions()
             {
                 return string.Join(", ", _attendees.Select(attendee => attendee.Mention));
             }
 
-            public Instance(SocketTextChannel channel, SocketUser creator, string topic)
+            public Instance(ITextChannel channel, IGuildUser creator, string topic)
             {
                 Topic = topic;
                 Channel = channel;
-                _attendees = new HashSet<SocketUser> { creator };
+                _attendees = new HashSet<IGuildUser> { creator };
             }
 
-            public Result Join(SocketUser user)
+            public Result Join(IGuildUser user)
             {
                 if (!_attendees.Add(user))
                 {
-                    return Result.FromError($"You are already in this drawalong, {user.Username}!");
+                    return Result.FromError($"You are already in this drawalong, {user.Name()}!");
                 }
 
                 return Result.FromSuccess();
             }
 
-            public Result Leave(SocketUser user)
+            public Result Leave(IGuildUser user)
             {
                 if (!_attendees.Remove(user))
                 {
@@ -106,14 +112,14 @@ namespace derpy
         private static readonly Result NO_CURRENT = Result.FromError("There is no drawalong currently running!");
         private static readonly Result RUNNING = Result.FromError("You can't do that while the drawalong is running.");
 
-        private Task<Discord.Rest.RestUserMessage> SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
+        private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 
-        public async Task<Result> Create(ISocketMessageChannel channel, SocketUser creator, string topic)
+        public async Task<Result> Create(ISocketMessageChannel channel, IGuildUser creator, string topic)
         {
             if (Active) { return Result.FromError("A drawalong is already running!"); }
             if (!(channel is SocketTextChannel)) { return Result.FromError("You can't run a drawalong here!"); }
 
-            _instance = new Instance(channel as SocketTextChannel, creator, topic);
+            _instance = new Instance(channel as ITextChannel, creator, topic);
             await SendAsync($"Drawalong created! Topic is \"{_instance.Topic}\".");
             return Result.FromSuccess();
         }
@@ -128,16 +134,16 @@ namespace derpy
             return Result.FromSuccess();
         }
 
-        public async Task<Result> Join(SocketUser user)
+        public async Task<Result> Join(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
 
             var result = _instance.Join(user);
-            if (result.IsSuccess) { await SendAsync($"You're in, {user.Username}!"); }
+            if (result.IsSuccess) { await SendAsync($"You're in, {user.Name()}!"); }
             return result;
         }
 
-        public async Task<Result> Leave(SocketUser user)
+        public async Task<Result> Leave(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
             var result = _instance.Leave(user);
@@ -149,13 +155,13 @@ namespace derpy
                     _run?.Cancel();
                     _run = null;
                     await SendAsync(
-                        $"You were the last one, {user.Username}, so I clear the drawalong. See y'all another time!"
+                        $"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!"
                     );
                     _instance = null;
                 }
                 else
                 {
-                    await SendAsync($"You're out, {user.Username}!");
+                    await SendAsync($"You're out, {user.Name()}!");
                 }
             }
 
@@ -198,12 +204,12 @@ namespace derpy
             return Result.FromSuccess();
         }
 
-        public async Task<Result> Boop(SocketUser user)
+        public async Task<Result> Boop(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
             if (Running) { return RUNNING; }
 
-            await SendAsync($"{user.Username} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
+            await SendAsync($"{user.Name()} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
             return Result.FromSuccess();
         }
 
