@@ -11,6 +11,13 @@ static class UserExtensions
     public static string Name(this IGuildUser user) => string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 }
 
+static class ArrayExtensions
+{
+    static private readonly Random rand = new Random();
+
+    public static T PickRandom<T>(this T[] array) => array[rand.Next(array.Length)];
+}
+
 namespace derpy
 {
     class CommandFailure : Exception { }
