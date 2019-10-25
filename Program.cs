@@ -24,6 +24,8 @@ namespace derpy
 
         private async Task RunAsync()
         {
+            _client.LoggedIn += async () => await _client.SetGameAsync("👨‍💻 Under development");
+
             await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
             await _client.StartAsync();
 
