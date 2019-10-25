@@ -22,9 +22,6 @@ namespace derpy.Commands
         [Command]
         public async Task Hug(SocketUser user) => await HugOne(Context.Guild.GetUser(user.Id));
 
-        private async Task HugOne(IGuildUser user)
-        {
-            await ReplyAsync(string.Format(HUGS.PickRandom(), user.Name()));
-        }
+        private async Task HugOne(IGuildUser user) => await ReplyAsync(string.Format(HUGS.PickRandom(), user.Name()));
     }
 }
