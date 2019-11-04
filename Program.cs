@@ -20,8 +20,6 @@ static class ArrayExtensions
 
 namespace derpy
 {
-    class CommandFailure : Exception { }
-
     class Program
     {
         private readonly DiscordSocketClient _client = new DiscordSocketClient();
