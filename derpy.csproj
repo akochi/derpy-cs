@@ -9,4 +9,9 @@
     <PackageReference Include="Discord.Net" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/Hugs.txt" />
+    <EmbeddedResource Include="Resources/GroupHugs.txt" />
+  </ItemGroup>
+
 </Project>
