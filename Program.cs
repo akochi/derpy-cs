@@ -38,22 +38,45 @@ namespace derpy
     {
         private readonly DiscordSocketClient _client = new DiscordSocketClient();
         private readonly CommandService _commands = new CommandService();
+        private readonly CancellationTokenSource _cancellationSource = new CancellationTokenSource();
 
-        static async Task Main() => await new Program().RunAsync();
+        static async Task Main() => await new Program().RunLooped();
+
+        private Program()
+        {
+            _client.LoggedIn += async () =>
+            {
+                Console.WriteLine($"Connected");
+                await _client.SetGameAsync("👨‍💻 Under development");
+            };
+            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
+
+            _client.MessageReceived += HandleCommandAsync;
+            _client.Disconnected += HandleDisconnection;
+            _commands.CommandExecuted += HandleCommandExecuted;
+        }
 
         private async Task RunAsync()
         {
-            _client.LoggedIn += async () => await _client.SetGameAsync("👨‍💻 Under development");
-
             await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
             await _client.StartAsync();
 
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
+            await Task.Delay(Timeout.Infinite, _cancellationSource.Token);
+        }
 
-            _client.MessageReceived += HandleCommandAsync;
-            _commands.CommandExecuted += HandleCommandExecuted;
-
-            await Task.Delay(Timeout.Infinite);
+        private async Task RunLooped()
+        {
+            while (true)
+            {
+                try
+                {
+                    await RunAsync();
+                }
+                catch (TaskCanceledException)
+                {
+                    Thread.Sleep(5000);
+                }
+            }
         }
 
         private async Task HandleCommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
@@ -85,6 +108,13 @@ namespace derpy
                 var context = new SocketCommandContext(_client, message);
                 await _commands.ExecuteAsync(context, argPos, null);
             }
+        }
+
+        private Task HandleDisconnection(Exception _)
+        {
+            Console.WriteLine("Disconnected");
+            _cancellationSource.Cancel();
+            return Task.FromCanceled(_cancellationSource.Token);
         }
     }
 }
