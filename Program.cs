@@ -46,7 +46,7 @@ namespace derpy
         {
             _client.LoggedIn += async () =>
             {
-                Console.WriteLine($"Connected");
+                Console.WriteLine("Connected");
                 await _client.SetGameAsync("👨‍💻 Under development");
             };
             _commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);

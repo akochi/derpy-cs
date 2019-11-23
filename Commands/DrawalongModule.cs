@@ -25,6 +25,7 @@ namespace derpy.Commands
         public async Task<RuntimeResult> Join() => await _instance.Join(Author());
 
         [Command("leave")]
+        [Alias("quit")]
         public async Task<RuntimeResult> Leave() => await _instance.Leave(Author());
 
         [Command("topic")]
