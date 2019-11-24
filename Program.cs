@@ -38,7 +38,7 @@ namespace derpy
     {
         private readonly DiscordSocketClient _client = new DiscordSocketClient();
         private readonly CommandService _commands = new CommandService();
-        private readonly CancellationTokenSource _cancellationSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationSource;
 
         static async Task Main() => await new Program().RunLooped();
 
@@ -58,6 +58,8 @@ namespace derpy
 
         private async Task RunAsync()
         {
+            _cancellationSource = new CancellationTokenSource();
+
             await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
             await _client.StartAsync();
 
@@ -74,6 +76,9 @@ namespace derpy
                 }
                 catch (TaskCanceledException)
                 {
+                    _cancellationSource.Dispose();
+                    _cancellationSource = null;
+
                     Thread.Sleep(5000);
                 }
             }
@@ -83,7 +88,11 @@ namespace derpy
         {
             if (!result.IsSuccess)
             {
-                if (result is Drawalong.Result)
+                if (!command.IsSpecified)
+                {
+                    await context.Channel.SendMessageAsync($"Unknomn command!");
+                }
+                else if (result is Drawalong.Result)
                 {
                     await context.Channel.SendMessageAsync(result.ErrorReason);
                 }

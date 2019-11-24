@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace derpy.Commands
 {
-
     [Group("hug")]
     public class HugModule : ModuleBase<SocketCommandContext>
     {
