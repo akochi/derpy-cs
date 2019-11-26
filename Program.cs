@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using System.Threading;
@@ -23,7 +24,13 @@ namespace derpy
                 Console.WriteLine("Connected");
                 await _client.SetGameAsync("👨‍💻 Under development");
             };
-            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
+
+            var _services = new ServiceCollection();
+            _services.AddSingleton<Commands.DrawalongModule>();
+            _services.AddSingleton<Commands.HugModule>();
+            _services.AddSingleton<Commands.RolesModule>();
+
+            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services.BuildServiceProvider());
 
             _client.MessageReceived += HandleCommandAsync;
             _client.Disconnected += HandleDisconnection;
