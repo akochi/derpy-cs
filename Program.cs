@@ -2,35 +2,9 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-
-static class UserExtensions
-{
-    public static string Name(this IGuildUser user) => string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
-}
-
-static class ArrayExtensions
-{
-    static private readonly Random rand = new Random();
-
-    public static T PickRandom<T>(this T[] array) => array[rand.Next(array.Length)];
-}
-
-static class StreamReaderExtensions
-{
-    public static IEnumerable<string> Lines(this StreamReader stream)
-    {
-        string line;
-        while ((line = stream.ReadLine()) != null)
-        {
-            yield return line;
-        }
-    }
-}
 
 namespace derpy
 {
