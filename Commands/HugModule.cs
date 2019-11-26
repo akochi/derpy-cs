@@ -9,6 +9,7 @@ using System.Linq;
 namespace derpy.Commands
 {
     [Group("hug")]
+    [Summary("Initialises SnugglePone® 0.42 protocols")]
     public class HugModule : ModuleBase<SocketCommandContext>
     {
         static readonly string[] HUGS = LoadFromResources("Hugs");

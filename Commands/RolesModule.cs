@@ -6,6 +6,7 @@ using System.Linq;
 namespace derpy.Commands
 {
     [Group("roles")]
+    [Summary("Manages membership to local roles")]
     public class RolesModule : ModuleBase<SocketCommandContext>
     {
         static readonly string[] ROLES = {
@@ -16,18 +17,24 @@ namespace derpy.Commands
         };
 
         [Command("earth")]
+        [Summary("Become a strong and proud earth pony")]
         public async Task Earth() => await SetRole(Context.Guild, Context.Message.Author, "Earth Ponies");
         [Command("unicorn")]
+        [Summary("Become a graceful and magical unicorn")]
         public async Task Unicorn() => await SetRole(Context.Guild, Context.Message.Author, "Unicorns");
         [Command("pegasus")]
+        [Summary("Become an agile and fierce pegasus")]
         public async Task Pegasus() => await SetRole(Context.Guild, Context.Message.Author, "Pegasi");
         [Command("equestrian")]
+        [Summary("For those who are not ponies")]
         public async Task Equestrian() => await SetRole(Context.Guild, Context.Message.Author, "Equestrians");
 
         [Command("clear")]
+        [Summary("Clear all belonging to any group")]
         public async Task Clear() => await ClearRoles(Context.Guild, Context.Message.Author);
 
         [Command("stats")]
+        [Summary("Shows statistics about group membership")]
         public async Task Stats() => await ShowStats(Context.Guild);
 
         private async Task SetRole(SocketGuild guild, SocketUser user, string roleName)

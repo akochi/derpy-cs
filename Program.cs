@@ -29,6 +29,7 @@ namespace derpy
             _services.AddSingleton<Commands.DrawalongModule>();
             _services.AddSingleton<Commands.HugModule>();
             _services.AddSingleton<Commands.RolesModule>();
+            _services.AddSingleton<Commands.HelpModule>();
 
             _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services.BuildServiceProvider());
 
