@@ -2,6 +2,8 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Linq;
+using System.Timers;
+using System.Collections.Generic;
 
 namespace derpy.Commands
 {
@@ -16,6 +18,10 @@ namespace derpy.Commands
             "Equestrians"
         };
 
+        const string NSFW_ROLE = "nsfw opt-in";
+        static readonly List<(SocketGuildUser, Timer)> waitingForConfirmation = new List<(SocketGuildUser, Timer)> { };
+
+        #region Commands
         [Command("earth")]
         [Summary("Become a strong and proud earth pony")]
         public async Task Earth() => await SetRole(Context.Guild, Context.Message.Author, "Earth Ponies");
@@ -37,9 +43,19 @@ namespace derpy.Commands
         [Summary("Shows statistics about group membership")]
         public async Task Stats() => await ShowStats(Context.Guild);
 
+        [Command("nsfw on")]
+        [Summary("Enables access to adult channels")]
+        public async Task EnableNsfw() => await EnableNsfw(Context.Guild, Context.Message.Author);
+
+        [Command("nsfw off")]
+        [Summary("Disables access to adult channels")]
+        public async Task DisableNsfw() => await DisableNsfw(Context.Guild, Context.Message.Author);
+        #endregion
+
+        #region Implementations
         private async Task SetRole(SocketGuild guild, SocketUser user, string roleName)
         {
-            var guildUser = guild.GetUser(user.Id);
+            var guildUser = user.GuildUser(guild);
             var existingRole = guildUser.Roles.FirstOrDefault(role => ROLES.Contains(role.Name));
 
             if (existingRole != null)
@@ -60,7 +76,7 @@ namespace derpy.Commands
 
         private async Task ClearRoles(SocketGuild guild, SocketUser user)
         {
-            var guildUser = guild.GetUser(user.Id);
+            var guildUser = user.GuildUser(guild);
             var existingRoles = guildUser.Roles.Where(role => ROLES.Contains(role.Name)).ToArray();
 
             if (existingRoles.Length == 0)
@@ -85,5 +101,58 @@ namespace derpy.Commands
 
             await ReplyAsync($"{string.Join("\n", groupStats)}\nUsers without roles: {remainingUsers}");
         }
+
+        private async Task EnableNsfw(SocketGuild guild, SocketUser user)
+        {
+            var guildUser = user.GuildUser(guild);
+
+            if (guildUser.Roles.Select(role => role.Name).Contains(NSFW_ROLE))
+            {
+                await ReplyAsync("You have already opted in the adult channels!");
+                return;
+            }
+
+            (SocketGuildUser, Timer timer) match = waitingForConfirmation.Find(((SocketGuildUser user, Timer) item) => user == item.user);
+            if (match == (null, null))
+            {
+                var timer = new Timer(5 /* * 60 */ * 1000)
+                {
+                    AutoReset = false
+                };
+                var message = await ReplyAsync($"{user.Username}, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.");
+
+                timer.Elapsed += (source, args) =>
+                {
+                    waitingForConfirmation.Remove((guildUser, timer));
+                    message.ModifyAsync(message => message.Content = $"NSFW access request for {user.Username} expired.");
+                };
+                waitingForConfirmation.Add((guildUser, timer));
+                timer.Start();
+                return;
+            }
+
+            match.timer.Stop();
+            waitingForConfirmation.Remove(match);
+
+            var newRole = guild.Roles.First(role => role.Name == NSFW_ROLE);
+            await guildUser.AddRoleAsync(newRole);
+            await ReplyAsync("You have been allowed into the adult channels!");
+        }
+
+        private async Task DisableNsfw(SocketGuild guild, SocketUser user)
+        {
+            var guildUser = user.GuildUser(guild);
+            var existingRole = guildUser.Roles.FirstOrDefault(role => role.Name == NSFW_ROLE);
+
+            if (existingRole == null)
+            {
+                await ReplyAsync("You were not opted in the adult channels!");
+                return;
+            }
+
+            await guildUser.RemoveRoleAsync(existingRole);
+            await ReplyAsync("You have been removed from the adult channels!");
+        }
+        #endregion
     }
 }
