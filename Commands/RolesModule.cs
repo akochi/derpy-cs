@@ -115,11 +115,14 @@ namespace derpy.Commands
             (SocketGuildUser, Timer timer) match = waitingForConfirmation.Find(((SocketGuildUser user, Timer) item) => user == item.user);
             if (match == (null, null))
             {
-                var timer = new Timer(5 /* * 60 */ * 1000)
+                var timer = new Timer(5 * 60 * 1000)
                 {
                     AutoReset = false
                 };
-                var message = await ReplyAsync($"{user.Username}, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.");
+                var message = await ReplyAsync(
+                    $"{user.Username}, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.\n"
+                    + "**Reminder:** Lying about your age may result in a server ban."
+                );
 
                 timer.Elapsed += (source, args) =>
                 {
