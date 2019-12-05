@@ -124,8 +124,8 @@ namespace derpy
             if (!Active) { return NO_CURRENT; }
             if (Running) { return Result.FromError("You can't clear a running drawalong!"); }
 
-            _instance = null;
             await SendAsync("Drawalong cleared!");
+            _instance = null;
             return Result.FromSuccess();
         }
 
