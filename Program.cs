@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
@@ -19,9 +20,14 @@ namespace derpy
 
         private Program()
         {
+            var log = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            Log.Logger = log;
+
             _client.LoggedIn += async () =>
             {
-                Console.WriteLine("Connected");
+                Log.Information("Connected");
                 await _client.SetGameAsync("👨‍💻 Under development");
             };
 
@@ -80,6 +86,7 @@ namespace derpy
                 }
                 else if (result is ExecuteResult commandResult && commandResult.Exception != null)
                 {
+                    Log.Error(commandResult.Exception, "Error while executing {command}", command.Value.Name);
                     await context.Channel.SendMessageAsync($"There has been an exception :(\n```{commandResult.Exception}```");
                 }
                 else
@@ -103,7 +110,7 @@ namespace derpy
 
         private Task HandleDisconnection(Exception _)
         {
-            Console.WriteLine("Disconnected");
+            Log.Information("Disconnected");
             _cancellationSource.Cancel();
             return Task.FromCanceled(_cancellationSource.Token);
         }
