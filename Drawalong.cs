@@ -99,8 +99,11 @@ namespace derpy
             public event FinishedEventHandler Finished;
         }
 
+        private const int TIMEOUT = 120; // Minutes
+
         private Instance _instance;
         private Run _run;
+        private Timer _timeout;
         public bool Active => !(_instance is null);
         public bool Running => !(_run is null);
 
@@ -115,6 +118,7 @@ namespace derpy
             if (!(channel is SocketTextChannel)) { return Result.FromError("You can't run a drawalong here!"); }
 
             _instance = new Instance(channel as ITextChannel, creator, topic);
+            SetupTimeout();
             await SendAsync($"Drawalong created! Topic is \"{_instance.Topic}\".");
             return Result.FromSuccess();
         }
@@ -126,6 +130,7 @@ namespace derpy
 
             await SendAsync("Drawalong cleared!");
             _instance = null;
+            ClearTimeout();
             return Result.FromSuccess();
         }
 
@@ -185,12 +190,14 @@ namespace derpy
             if (!Active) { return NO_CURRENT; }
             if (Running) { return Result.FromError("The drawalong is already running! Quick, to your pencils!"); }
 
+            ClearTimeout();
             _run = new Run();
             _run.Reminder += remaining => SendAsync($"{remaining} minutes reamining!");
             _run.Finished += () =>
             {
                 SendAsync($"{_instance.GetMentions()}\nFinished! Everyone drop their pencils!");
                 _run = null;
+                SetupTimeout();
             };
 
             await SendAsync(
@@ -215,6 +222,27 @@ namespace derpy
 
             await SendAsync($"The drawalong is about to start! Are you ready?\n{_instance.GetMentions()}");
             return Result.FromSuccess();
+        }
+
+        private void SetupTimeout()
+        {
+            _timeout = new Timer(TIMEOUT * 60 * 1000)
+            {
+                AutoReset = false
+            };
+            _timeout.Elapsed += (source, args) =>
+            {
+                if (Active && !Running)
+                    _instance = null;
+                _timeout = null;
+            };
+            _timeout.Start();
+        }
+
+        private void ClearTimeout()
+        {
+            _timeout?.Stop();
+            _timeout = null;
         }
     }
 }
