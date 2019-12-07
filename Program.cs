@@ -25,10 +25,10 @@ namespace derpy
                 .CreateLogger();
             Log.Logger = log;
 
-            _client.LoggedIn += async () =>
+            _client.LoggedIn += () =>
             {
                 Log.Information("Connected");
-                await _client.SetGameAsync("👨‍💻 Under development");
+                return Task.CompletedTask;
             };
 
             var _services = new ServiceCollection();
