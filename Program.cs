@@ -2,6 +2,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Serilog;
+using Sentry;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
@@ -16,7 +17,13 @@ namespace derpy
         private readonly CommandService _commands = new CommandService();
         private CancellationTokenSource _cancellationSource;
 
-        static async Task Main() => await new Program().RunLooped();
+        static async Task Main()
+        {
+            using (SentrySdk.Init())
+            {
+                await new Program().RunLooped();
+            }
+        }
 
         private Program()
         {
@@ -87,7 +94,12 @@ namespace derpy
                 else if (result is ExecuteResult commandResult && commandResult.Exception != null)
                 {
                     Log.Error(commandResult.Exception, "Error while executing {command}", command.Value.Name);
-                    await context.Channel.SendMessageAsync($"There has been an exception :(\n```{commandResult.Exception}```");
+                    SentrySdk.CaptureException(commandResult.Exception);
+                    await context.Channel.SendMessageAsync(
+                        $"There has been a problem while running this command, sorry :disappointed:"
+                        + "\nMy caretaker has been informed and should take a look."
+                        + "\nPlease do not delete your message! It can help understanding what went wrong."
+                    );
                 }
                 else
                 {
@@ -104,7 +116,20 @@ namespace derpy
             if (message.HasCharPrefix('%', ref argPos) && !message.Author.IsBot)
             {
                 var context = new SocketCommandContext(_client, message);
-                await _commands.ExecuteAsync(context, argPos, null);
+                using (SentrySdk.PushScope())
+                {
+                    SentrySdk.ConfigureScope(scope =>
+                    {
+                        scope.User = new Sentry.Protocol.User
+                        {
+                            Id = message.Author.Id.ToString(),
+                            Username = message.Author.Username + "#" + message.Author.Discriminator,
+                        };
+                        scope.SetExtra("message", message.Content);
+                    });
+
+                    await _commands.ExecuteAsync(context, argPos, null);
+                }
             }
         }
 
