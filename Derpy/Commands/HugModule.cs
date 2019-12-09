@@ -18,7 +18,7 @@ namespace derpy.Commands
         static private string[] LoadFromResources(string resourceName)
         {
             var assembly = Assembly.GetEntryAssembly();
-            var stream = assembly.GetManifestResourceStream($"derpy.Resources.{resourceName}.txt");
+            var stream = assembly.GetManifestResourceStream($"Derpy.Resources.{resourceName}.txt");
             using var reader = new StreamReader(stream);
 
             return reader.Lines().ToArray();
