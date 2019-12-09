@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using System.Linq;
+using System.IO;
 
 namespace derpy.Commands
 {
@@ -20,10 +22,19 @@ namespace derpy.Commands
         [Summary("Shows a list and description of available commands")]
         public async Task Help()
         {
+            var assembly = Assembly.GetEntryAssembly();
+            var stream = assembly.GetManifestResourceStream("Derpy.Resources.Help.md");
+            using var reader = new StreamReader(stream);
+
             var embed = new EmbedBuilder()
             {
-                Color = EmbedColor
+                Description = await reader.ReadToEndAsync(),
+                Color = EmbedColor,
+                ThumbnailUrl = "https://derpicdn.net/img/2019/5/13/2038323/thumb.png"
             };
+
+            var commands = new List<string> { };
+            var modules = new List<string> { "Use `%help <module>` to see subcommads.\n" };
 
             foreach (var module in _service.Modules)
             {
@@ -31,30 +42,39 @@ namespace derpy.Commands
                 {
                     foreach (var command in module.Commands)
                     {
-                        if (string.IsNullOrEmpty(command.Summary))
-                            continue;
-                        embed.AddField($"`%{command.Name}`", FormatCommand(command));
+                        if (!string.IsNullOrEmpty(command.Summary))
+                        {
+                            commands.Add($"`%{command.Aliases.First()}`: {command.Summary}");
+                        }
                     }
                 }
                 else
                 {
-                    var lines = new List<string> { };
-
+                    if (string.IsNullOrEmpty(module.Summary))
+                    {
+                        continue;
+                    }
                     if (module.Commands.Any(command => !string.IsNullOrEmpty(command.Summary)))
                     {
-                        lines.Add($"_See `%help {module.Group}` for subcommands_");
-                    };
-
-                    if (!string.IsNullOrEmpty(module.Summary))
-                    {
-                        lines.Insert(0, module.Summary);
+                        modules.Add($"`%{module.Group}`: {module.Summary}");
                     }
-
-                    embed.AddField($"`%{module.Group}`", string.Join('\n', lines));
+                    else
+                    {
+                        commands.Add($"`%{module.Group}`: {module.Summary}");
+                    }
                 }
             }
 
-            await ReplyAsync("I respond to the following commands:", embed: embed.Build());
+            if (commands.Count > 0)
+            {
+                embed.AddField("Commands", string.Join('\n', commands));
+            }
+            if (modules.Count > 1)
+            {
+                embed.AddField("Modules", string.Join('\n', modules));
+            }
+
+            await ReplyAsync("Hello! I am **Derpy**, here to help you!", embed: embed.Build());
         }
 
         [Command("help")]
@@ -74,30 +94,21 @@ namespace derpy.Commands
                 Description = module.Summary
             };
 
+            var commands = new List<string> { };
+
             foreach (var command in module.Commands)
             {
                 if (string.IsNullOrEmpty(command.Summary))
                     continue;
-                embed.AddField($"`%{module.Group} {command.Name}`", FormatCommand(command));
+                commands.Add($"`%{command.Aliases.First()}`: {command.Summary}");
+            }
+
+            if (commands.Count > 0)
+            {
+                embed.AddField("Subcommands", string.Join("\n", commands));
             }
 
             await ReplyAsync(embed: embed.Build());
-        }
-
-        private string FormatCommand(CommandInfo command)
-        {
-            var lines = new List<string> { command.Summary };
-
-            if (command.Aliases.Count > 1) // Command name is included in aliases
-            {
-                var aliases =
-                    from alias in command.Aliases
-                    where alias.Split(' ').Last() != command.Name
-                    select $"`%{alias}`";
-                lines.Add($"_Aliases: {string.Join(", ", aliases)}_");
-            }
-
-            return string.Join('\n', lines);
         }
     }
 }
