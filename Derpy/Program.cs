@@ -8,14 +8,23 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack.Redis;
 
 namespace derpy
 {
     class Program
     {
-        private readonly DiscordSocketClient _client = new DiscordSocketClient();
         private readonly CommandService _commands = new CommandService();
+        private readonly ServiceProvider _services = LoadDependencies();
         private CancellationTokenSource _cancellationSource;
+
+        private DiscordSocketClient Client
+        {
+            get
+            {
+                return _services.GetRequiredService<DiscordSocketClient>();
+            }
+        }
 
         static async Task Main()
         {
@@ -32,31 +41,33 @@ namespace derpy
                 .CreateLogger();
             Log.Logger = log;
 
-            _client.LoggedIn += () =>
+            Client.LoggedIn += () =>
             {
                 Log.Information("Connected");
                 return Task.CompletedTask;
             };
 
-            var _services = new ServiceCollection();
-            _services.AddSingleton<Commands.DrawalongModule>();
-            _services.AddSingleton<Commands.HugModule>();
-            _services.AddSingleton<Commands.RolesModule>();
-            _services.AddSingleton<Commands.HelpModule>();
+            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
-            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services.BuildServiceProvider());
-
-            _client.MessageReceived += HandleCommandAsync;
-            _client.Disconnected += HandleDisconnection;
+            Client.MessageReceived += HandleCommandAsync;
+            Client.Disconnected += HandleDisconnection;
             _commands.CommandExecuted += HandleCommandExecuted;
+        }
+
+        private static ServiceProvider LoadDependencies()
+        {
+            return new ServiceCollection()
+                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<IRedisClient>(new RedisClient())
+                .BuildServiceProvider();
         }
 
         private async Task RunAsync()
         {
             _cancellationSource = new CancellationTokenSource();
 
-            await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
-            await _client.StartAsync();
+            await Client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
+            await Client.StartAsync();
 
             await Task.Delay(Timeout.Infinite, _cancellationSource.Token);
         }
@@ -115,7 +126,7 @@ namespace derpy
             int argPos = 0;
             if (message.HasCharPrefix('%', ref argPos) && !message.Author.IsBot)
             {
-                var context = new SocketCommandContext(_client, message);
+                var context = new SocketCommandContext(Client, message);
                 using (SentrySdk.PushScope())
                 {
                     SentrySdk.ConfigureScope(scope =>
@@ -128,7 +139,7 @@ namespace derpy
                         scope.SetExtra("message", message.Content);
                     });
 
-                    await _commands.ExecuteAsync(context, argPos, null);
+                    await _commands.ExecuteAsync(context, argPos, _services);
                 }
             }
         }
