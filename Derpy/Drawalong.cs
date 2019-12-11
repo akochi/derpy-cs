@@ -9,7 +9,7 @@ using Discord.WebSocket;
 
 namespace derpy
 {
-    class Drawalong
+    public class Drawalong
     {
         public class Result : RuntimeResult
         {

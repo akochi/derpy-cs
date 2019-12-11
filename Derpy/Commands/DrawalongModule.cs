@@ -8,9 +8,10 @@ namespace derpy.Commands
     [Summary("Allows to start and manage drawalongs")]
     public class DrawalongModule : ModuleBase<SocketCommandContext>
     {
-        private static readonly Drawalong _instance = new Drawalong();
-
+        private readonly Drawalong _instance;
         private IGuildUser Author() => Context.Guild.GetUser(Context.Message.Author.Id);
+
+        public DrawalongModule(Drawalong instance) => _instance = instance;
 
         [Command("new")]
         [Summary("Creates a new drawalong")]

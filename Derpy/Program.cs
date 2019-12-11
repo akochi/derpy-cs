@@ -18,13 +18,7 @@ namespace derpy
         private readonly ServiceProvider _services = LoadDependencies();
         private CancellationTokenSource _cancellationSource;
 
-        private DiscordSocketClient Client
-        {
-            get
-            {
-                return _services.GetRequiredService<DiscordSocketClient>();
-            }
-        }
+        private DiscordSocketClient Client => _services.GetRequiredService<DiscordSocketClient>();
 
         static async Task Main()
         {
@@ -58,6 +52,7 @@ namespace derpy
         {
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<Drawalong>()
                 .AddSingleton<IRedisClient>(new RedisClient())
                 .BuildServiceProvider();
         }
