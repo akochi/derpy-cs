@@ -7,7 +7,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace derpy
+namespace Derpy
 {
     public class Drawalong
     {

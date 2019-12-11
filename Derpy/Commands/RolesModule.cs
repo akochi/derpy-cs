@@ -5,7 +5,7 @@ using System.Linq;
 using System.Timers;
 using System.Collections.Generic;
 
-namespace derpy.Commands
+namespace Derpy.Commands
 {
     [Group("roles")]
     [Summary("Manages membership to local roles")]

@@ -6,7 +6,7 @@ using Discord.Commands;
 using System.Linq;
 using System.IO;
 
-namespace derpy.Commands
+namespace Derpy.Commands
 {
     public class HelpModule : ModuleBase<SocketCommandContext>
     {

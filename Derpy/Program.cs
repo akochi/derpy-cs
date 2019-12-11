@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Redis;
 
-namespace derpy
+namespace Derpy
 {
     class Program
     {

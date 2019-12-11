@@ -6,7 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Linq;
 
-namespace derpy.Commands
+namespace Derpy.Commands
 {
     [Group("hug")]
     [Summary("Initialises SnugglePone® 0.42 protocols")]

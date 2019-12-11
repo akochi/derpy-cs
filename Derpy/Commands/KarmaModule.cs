@@ -3,7 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using ServiceStack.Redis;
 
-namespace derpy.Commands
+namespace Derpy.Commands
 {
     [Group("karma")]
     [Summary("Show and manage people's karma")]

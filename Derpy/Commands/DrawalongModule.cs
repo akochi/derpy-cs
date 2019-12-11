@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace derpy.Commands
+namespace Derpy.Commands
 {
     [Group("da")]
     [Summary("Allows to start and manage drawalongs")]
