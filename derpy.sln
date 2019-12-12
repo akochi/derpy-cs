@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derpy", "Derpy\Derpy.csproj", "{AAEE6FD4-A5CC-454C-B398-70CA5D62F403}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derpy.Tests", "Derpy.Tests\Derpy.Tests.csproj", "{6EAA9A8A-7B43-4054-9859-7849874E604C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,17 @@ Global
 		{AAEE6FD4-A5CC-454C-B398-70CA5D62F403}.Release|x64.Build.0 = Release|Any CPU
 		{AAEE6FD4-A5CC-454C-B398-70CA5D62F403}.Release|x86.ActiveCfg = Release|Any CPU
 		{AAEE6FD4-A5CC-454C-B398-70CA5D62F403}.Release|x86.Build.0 = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Debug|x86.Build.0 = Debug|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|x64.Build.0 = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|x86.ActiveCfg = Release|Any CPU
+		{6EAA9A8A-7B43-4054-9859-7849874E604C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
