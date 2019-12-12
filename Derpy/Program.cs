@@ -46,7 +46,6 @@ namespace Derpy
 
             Client.MessageReceived += HandleCommandAsync;
             Client.Disconnected += HandleDisconnection;
-            _commands.CommandExecuted += HandleCommandExecuted;
         }
 
         private static ServiceProvider LoadDependencies()
@@ -85,33 +84,6 @@ namespace Derpy
                     _cancellationSource = null;
 
                     Thread.Sleep(5000);
-                }
-            }
-        }
-
-        private async Task HandleCommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
-        {
-            if (result is CommandResult) { return; }
-
-            if (!result.IsSuccess)
-            {
-                if (!command.IsSpecified)
-                {
-                    await context.Channel.SendMessageAsync($"Unknomn command!");
-                }
-                else if (result is ExecuteResult commandResult && commandResult.Exception != null)
-                {
-                    Log.Error(commandResult.Exception, "Error while executing {command}", command.Value.Name);
-                    SentrySdk.CaptureException(commandResult.Exception);
-                    await context.Channel.SendMessageAsync(
-                        $"There has been a problem while running this command, sorry :disappointed:"
-                        + "\nMy caretaker has been informed and should take a look."
-                        + "\nPlease do not delete your message! It can help understanding what went wrong."
-                    );
-                }
-                else
-                {
-                    await context.Channel.SendMessageAsync($"There has been an error :(\n```{result.Error}```");
                 }
             }
         }
