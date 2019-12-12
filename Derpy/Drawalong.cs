@@ -100,10 +100,10 @@ namespace Derpy
 
         private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 
-        public CommandResult Create(ISocketMessageChannel channel, IGuildUser creator, string topic)
+        public CommandResult Create(IMessageChannel channel, IGuildUser creator, string topic)
         {
             if (Active) { return CommandResult.FromError("A drawalong is already running!"); }
-            if (!(channel is SocketTextChannel)) { return CommandResult.FromError("You can't run a drawalong here!"); }
+            if (!(channel is ITextChannel)) { return CommandResult.FromError("You can't run a drawalong here!"); }
 
             _instance = new Instance(channel as ITextChannel, creator, topic);
             SetupTimeout();
