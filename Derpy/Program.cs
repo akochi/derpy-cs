@@ -41,6 +41,7 @@ namespace Derpy
                 return Task.CompletedTask;
             };
 
+            var _ = new Services.Result(_commands);
             _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
             Client.MessageReceived += HandleCommandAsync;
@@ -90,15 +91,13 @@ namespace Derpy
 
         private async Task HandleCommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
+            if (result is CommandResult) { return; }
+
             if (!result.IsSuccess)
             {
                 if (!command.IsSpecified)
                 {
                     await context.Channel.SendMessageAsync($"Unknomn command!");
-                }
-                else if (result is Drawalong.Result)
-                {
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
                 }
                 else if (result is ExecuteResult commandResult && commandResult.Exception != null)
                 {

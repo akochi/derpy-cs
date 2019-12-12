@@ -4,24 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 
 namespace Derpy
 {
     public class Drawalong
     {
-        public class Result : RuntimeResult
-        {
-            protected Result(CommandError error, string message) : base(error, message) { }
-            protected Result() : base(null, null) { }
-
-            static public Result FromSuccess() => new Result();
-            static public Result FromError(string message) => new Result(CommandError.Unsuccessful, message);
-
-            public Task<RuntimeResult> ToAsyncResult() => Task.FromResult(this as RuntimeResult);
-        }
-
         private class Instance
         {
             public string Topic { get; set; }
@@ -41,24 +29,24 @@ namespace Derpy
                 _attendees = new HashSet<IGuildUser> { creator };
             }
 
-            public Result Join(IGuildUser user)
+            public CommandResult Join(IGuildUser user)
             {
                 if (!_attendees.Add(user))
                 {
-                    return Result.FromError($"You are already in this drawalong, {user.Name()}!");
+                    return CommandResult.FromError($"You are already in this drawalong, {user.Name()}!");
                 }
 
-                return Result.FromSuccess();
+                return CommandResult.FromSuccess($"You're in, {user.Name()}!");
             }
 
-            public Result Leave(IGuildUser user)
+            public CommandResult Leave(IGuildUser user)
             {
                 if (!_attendees.Remove(user))
                 {
-                    return Result.FromError("You're not in this drawalong!?");
+                    return CommandResult.FromError("You're not in this drawalong!?");
                 }
 
-                return Result.FromSuccess();
+                return CommandResult.FromSuccess($"You're out, {user.Name()}!");
             }
         }
 
@@ -107,43 +95,38 @@ namespace Derpy
         public bool Active => !(_instance is null);
         public bool Running => !(_run is null);
 
-        private static readonly Result NO_CURRENT = Result.FromError("There is no drawalong currently running!");
-        private static readonly Result RUNNING = Result.FromError("You can't do that while the drawalong is running.");
+        private static readonly CommandResult NO_CURRENT = CommandResult.FromError("There is no drawalong currently running!");
+        private static readonly CommandResult RUNNING = CommandResult.FromError("You can't do that while the drawalong is running.");
 
         private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 
-        public async Task<Result> Create(ISocketMessageChannel channel, IGuildUser creator, string topic)
+        public CommandResult Create(ISocketMessageChannel channel, IGuildUser creator, string topic)
         {
-            if (Active) { return Result.FromError("A drawalong is already running!"); }
-            if (!(channel is SocketTextChannel)) { return Result.FromError("You can't run a drawalong here!"); }
+            if (Active) { return CommandResult.FromError("A drawalong is already running!"); }
+            if (!(channel is SocketTextChannel)) { return CommandResult.FromError("You can't run a drawalong here!"); }
 
             _instance = new Instance(channel as ITextChannel, creator, topic);
             SetupTimeout();
-            await SendAsync($"Drawalong created! Topic is \"{_instance.Topic}\".");
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"Drawalong created! Topic is \"{_instance.Topic}\".");
         }
 
-        public async Task<Result> Clear()
+        public CommandResult Clear()
         {
             if (!Active) { return NO_CURRENT; }
-            if (Running) { return Result.FromError("You can't clear a running drawalong!"); }
+            if (Running) { return CommandResult.FromError("You can't clear a running drawalong!"); }
 
-            await SendAsync("Drawalong cleared!");
             _instance = null;
             ClearTimeout();
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess("Drawalong cleared!");
         }
 
-        public async Task<Result> Join(IGuildUser user)
+        public CommandResult Join(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
-
-            var result = _instance.Join(user);
-            if (result.IsSuccess) { await SendAsync($"You're in, {user.Name()}!"); }
-            return result;
+            return _instance.Join(user);
         }
 
-        public async Task<Result> Leave(IGuildUser user)
+        public CommandResult Leave(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
             var result = _instance.Leave(user);
@@ -154,41 +137,34 @@ namespace Derpy
                 {
                     _run?.Cancel();
                     _run = null;
-                    await SendAsync(
-                        $"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!"
-                    );
                     _instance = null;
-                }
-                else
-                {
-                    await SendAsync($"You're out, {user.Name()}!");
+
+                    return CommandResult.FromSuccess($"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!");
                 }
             }
 
             return result;
         }
 
-        public async Task<Result> GetTopic()
+        public CommandResult GetTopic()
         {
             if (!Active) { return NO_CURRENT; }
-            await SendAsync($"Current topic is \"{_instance.Topic}\".");
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"Current topic is \"{_instance.Topic}\".");
         }
 
-        public async Task<Result> SetTopic(string newTopic)
+        public CommandResult SetTopic(string newTopic)
         {
             if (!Active) { return NO_CURRENT; }
-            if (Running) { return Result.FromError("You can't change the topic of a running drawalong!"); }
+            if (Running) { return CommandResult.FromError("You can't change the topic of a running drawalong!"); }
 
             _instance.Topic = newTopic;
-            await SendAsync($"Got it! New topic is \"{newTopic}\".");
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"Got it! New topic is \"{newTopic}\".");
         }
 
-        public async Task<Result> Start()
+        public CommandResult Start()
         {
             if (!Active) { return NO_CURRENT; }
-            if (Running) { return Result.FromError("The drawalong is already running! Quick, to your pencils!"); }
+            if (Running) { return CommandResult.FromError("The drawalong is already running! Quick, to your pencils!"); }
 
             ClearTimeout();
             _run = new Run();
@@ -200,28 +176,23 @@ namespace Derpy
                 SetupTimeout();
             };
 
-            await SendAsync(
-                $"{_instance.GetMentions()}\n**Drawalong has started!** Topic is\"{_instance.Topic}\". Quick, to your pencils!"
-            );
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"{_instance.GetMentions()}\n**Drawalong has started!** Topic is\"{_instance.Topic}\". Quick, to your pencils!");
         }
 
-        public async Task<Result> Boop(IGuildUser user)
+        public CommandResult Boop(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
             if (Running) { return RUNNING; }
 
-            await SendAsync($"{user.Name()} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"{user.Name()} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
         }
 
-        public async Task<Result> Notify()
+        public CommandResult Notify()
         {
             if (!Active) { return NO_CURRENT; }
             if (Running) { return RUNNING; }
 
-            await SendAsync($"The drawalong is about to start! Are you ready?\n{_instance.GetMentions()}");
-            return Result.FromSuccess();
+            return CommandResult.FromSuccess($"The drawalong is about to start! Are you ready?\n{_instance.GetMentions()}");
         }
 
         private void SetupTimeout()
