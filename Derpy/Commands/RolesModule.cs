@@ -71,7 +71,7 @@ namespace Derpy.Commands
 
             var newRole = guild.Roles.First(role => role.Name == roleName);
             await guildUser.AddRoleAsync(newRole);
-            await ReplyAsync($"You are now part of the {roleName}, {guildUser.Nickname}!");
+            await ReplyAsync($"You are now part of the {roleName}, {guildUser.Name()}!");
         }
 
         private async Task ClearRoles(SocketGuild guild, SocketUser user)
