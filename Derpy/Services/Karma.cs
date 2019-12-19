@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+using System.Linq;
 using Discord;
 using Discord.WebSocket;
 using ServiceStack.Redis;
+using System.Collections.Generic;
 
 namespace Derpy.Services
 {
@@ -28,6 +30,16 @@ namespace Derpy.Services
         public void AddKarma(IUser user, int karma)
         {
             _redis.IncrementValueInHash(REDIS_KEY, user.Id.ToString(), karma);
+        }
+
+        public (int, int) GetStats()
+        {
+            var entries = _redis.GetAllEntriesFromHash(REDIS_KEY);
+
+            return (
+                entries.Count,
+                entries.Sum(entry => int.Parse(entry.Value))
+            );
         }
 
         public async Task OnReactionAdded(Cacheable<IUserMessage, ulong> messageCache, ISocketMessageChannel _, SocketReaction reaction)
