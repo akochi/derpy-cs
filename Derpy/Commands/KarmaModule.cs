@@ -32,14 +32,14 @@ namespace Derpy.Commands
             return Task.CompletedTask;
         }
 
-        [Command("stat")]
+        [Command("stats")]
         [Summary("Shows all time stats")]
-        public Task<CommandResult> GetStats()
+        public Task<RuntimeResult> GetStats()
         {
             var (userCount, karmaTotal) = _service.GetStats();
 
             return Task.FromResult(
-                CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.")
+                CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.") as RuntimeResult
             );
         }
     }
