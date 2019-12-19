@@ -14,6 +14,10 @@ namespace Derpy.Commands
 
         [Command]
         [Alias("show")]
+        public Task ShowKarma() => ShowKarma(Context.User);
+
+        [Command]
+        [Alias("show")]
         [Summary("Shows the current karma value for an user")]
         public async Task ShowKarma(SocketUser user)
         {
