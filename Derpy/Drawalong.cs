@@ -1,10 +1,9 @@
+﻿using Discord;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using Discord;
-using Discord.WebSocket;
 
 namespace Derpy
 {
@@ -17,10 +16,8 @@ namespace Derpy
             public bool Empty => _attendees.Count == 0;
             private readonly HashSet<IGuildUser> _attendees;
 
-            public string GetMentions()
-            {
-                return string.Join(", ", _attendees.Select(attendee => attendee.Mention));
-            }
+            public string GetMentions() =>
+                string.Join(", ", _attendees.Select(attendee => attendee.Mention));
 
             public Instance(ITextChannel channel, IGuildUser creator, string topic)
             {
@@ -29,25 +26,15 @@ namespace Derpy
                 _attendees = new HashSet<IGuildUser> { creator };
             }
 
-            public CommandResult Join(IGuildUser user)
-            {
-                if (!_attendees.Add(user))
-                {
-                    return CommandResult.FromError($"You are already in this drawalong, {user.Name()}!");
-                }
+            public CommandResult Join(IGuildUser user) =>
+                _attendees.Add(user)
+                    ? CommandResult.FromSuccess($"You're in, {user.Name()}!")
+                    : CommandResult.FromError($"You are already in this drawalong, {user.Name()}!");
 
-                return CommandResult.FromSuccess($"You're in, {user.Name()}!");
-            }
-
-            public CommandResult Leave(IGuildUser user)
-            {
-                if (!_attendees.Remove(user))
-                {
-                    return CommandResult.FromError("You're not in this drawalong!?");
-                }
-
-                return CommandResult.FromSuccess($"You're out, {user.Name()}!");
-            }
+            public CommandResult Leave(IGuildUser user) =>
+                _attendees.Remove(user)
+                    ? CommandResult.FromSuccess($"You're out, {user.Name()}!")
+                    : CommandResult.FromError("You're not in this drawalong!?");
         }
 
         private class Run
@@ -120,37 +107,25 @@ namespace Derpy
             return CommandResult.FromSuccess("Drawalong cleared!");
         }
 
-        public CommandResult Join(IGuildUser user)
-        {
-            if (!Active) { return NO_CURRENT; }
-            return _instance.Join(user);
-        }
+        public CommandResult Join(IGuildUser user) =>
+            Active ? _instance.Join(user) : NO_CURRENT;
 
         public CommandResult Leave(IGuildUser user)
         {
             if (!Active) { return NO_CURRENT; }
             var result = _instance.Leave(user);
 
-            if (result.IsSuccess)
-            {
-                if (_instance.Empty)
-                {
-                    _run?.Cancel();
-                    _run = null;
-                    _instance = null;
+            if (!result.IsSuccess || !_instance.Empty) { return result; }
 
-                    return CommandResult.FromSuccess($"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!");
-                }
-            }
+            _run?.Cancel();
+            _run = null;
+            _instance = null;
 
-            return result;
+            return CommandResult.FromSuccess($"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!");
         }
 
-        public CommandResult GetTopic()
-        {
-            if (!Active) { return NO_CURRENT; }
-            return CommandResult.FromSuccess($"Current topic is \"{_instance.Topic}\".");
-        }
+        public CommandResult GetTopic() =>
+            Active ? CommandResult.FromSuccess($"Current topic is \"{_instance.Topic}\".") : NO_CURRENT;
 
         public CommandResult SetTopic(string newTopic)
         {
@@ -203,10 +178,10 @@ namespace Derpy
             };
             _timeout.Elapsed += (source, args) =>
             {
-                if (Active && !Running)
-                    _instance = null;
+                if (Active && !Running) { _instance = null; }
                 _timeout = null;
             };
+
             _timeout.Start();
         }
 
