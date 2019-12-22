@@ -3,7 +3,6 @@ using System.Linq;
 using Discord;
 using Discord.WebSocket;
 using ServiceStack.Redis;
-using System.Collections.Generic;
 
 namespace Derpy.Services
 {
@@ -12,9 +11,9 @@ namespace Derpy.Services
         const string REDIS_KEY = "derpy.karma";
         const string REACTION_NAME = "plusplus";
 
-        private readonly RedisClient _redis;
+        private readonly IRedisClient _redis;
 
-        public Karma(DiscordSocketClient client, RedisClient redis)
+        public Karma(DiscordSocketClient client, IRedisClient redis)
         {
             _redis = redis;
             client.ReactionAdded += OnReactionAdded;
