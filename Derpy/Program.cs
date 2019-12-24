@@ -57,6 +57,7 @@ namespace Derpy
                 .AddSingleton(client)
                 .AddSingleton(new Services.Karma(client, redis))
                 .AddSingleton<Drawalong>()
+                .AddSingleton<Services.Roles>()
                 .BuildServiceProvider();
         }
 
