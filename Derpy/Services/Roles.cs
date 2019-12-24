@@ -77,7 +77,7 @@ namespace Derpy.Services
         public async Task<RuntimeResult> EnableNsfw(IGuild guild, ISocketMessageChannel channel, IUser user)
         {
             var guildUser = await user.GuildUser(guild);
-            var nsfwRole = guild.Roles.FirstOrDefault(role => role.Name == NSFW_ROLE);
+            var nsfwRole = GetNsfwRole(guild);
 
             if (nsfwRole == null)
             {
@@ -119,18 +119,22 @@ namespace Derpy.Services
             return CommandResult.FromSuccess("You have been allowed into the adult channels!");
         }
 
-        public async Task<RuntimeResult> DisableNsfw(SocketGuild guild, SocketUser user)
+        public async Task<RuntimeResult> DisableNsfw(IGuild guild, IUser user)
         {
-            var guildUser = user.GuildUser(guild);
-            var existingRole = guildUser.Roles.FirstOrDefault(role => role.Name == NSFW_ROLE);
+            var guildUser = await user.GuildUser(guild);
+            var nsfwRole = GetNsfwRole(guild);
 
-            if (existingRole == null)
+            if (guildUser.RoleIds.Contains(nsfwRole.Id))
             {
-                return CommandResult.FromError("You were not opted in the adult channels!");
+                await guildUser.RemoveRoleAsync(nsfwRole);
+                return CommandResult.FromSuccess("You have been removed from the adult channels!");
             }
+            return CommandResult.FromError("You were not opted in the adult channels!");
+        }
 
-            await guildUser.RemoveRoleAsync(existingRole);
-            return CommandResult.FromSuccess("You have been removed from the adult channels!");
+        private IRole GetNsfwRole(IGuild guild)
+        {
+            return guild.Roles.First(role => role.Name == NSFW_ROLE);
         }
     }
 }
