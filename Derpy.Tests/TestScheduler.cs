@@ -29,7 +29,8 @@ namespace Derpy.Tests
     {
         private readonly List<TestTimer> _timers = new List<TestTimer> { };
 
-        public ITimer CreateTimer(uint timeout, bool autoRepeat = false) {
+        public ITimer CreateTimer(uint timeout, bool autoRepeat = false)
+        {
             var timer = new TestTimer();
             _timers.Add(timer);
             return timer;

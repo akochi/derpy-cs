@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using System.Linq;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
 using ServiceStack.Redis;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Derpy.Services
 {

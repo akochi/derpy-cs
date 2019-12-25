@@ -1,14 +1,14 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Serilog;
-using Sentry;
 using Microsoft.Extensions.DependencyInjection;
+using Sentry;
+using Serilog;
+using ServiceStack.Redis;
 using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using ServiceStack.Redis;
 
 namespace Derpy
 {

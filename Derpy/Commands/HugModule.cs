@@ -1,10 +1,10 @@
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Derpy.Commands
 {
