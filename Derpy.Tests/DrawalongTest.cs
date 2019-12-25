@@ -6,7 +6,10 @@ namespace Derpy.Tests
 {
     public class DrawalongTest
     {
-        private readonly Drawalong _drawalong = new Drawalong();
+        private readonly TestScheduler _scheduler = new TestScheduler();
+        private readonly Drawalong _drawalong;
+
+        public DrawalongTest() => _drawalong = new Drawalong(_scheduler);
 
         [Fact]
         public void Test_NotActive()

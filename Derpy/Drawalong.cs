@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace Derpy
 {
@@ -39,20 +38,22 @@ namespace Derpy
 
         private class Run
         {
-            private readonly Timer[] _timers;
+            private readonly IScheduler _scheduler;
+            private readonly ITimer[] _timers;
 
-            private static Timer CreateTimer(int timeout, Action action)
+            private ITimer CreateTimer(uint timeout, Action action)
             {
-                var timer = new Timer(timeout * 1000 * 60);
+                var timer = _scheduler.CreateTimer(timeout * 1000 * 60);
                 timer.Elapsed += (source, args) => action.Invoke();
                 timer.AutoReset = false;
-                timer.Enabled = true;
+                timer.Start();
                 return timer;
             }
 
-            public Run()
+            public Run(IScheduler scheduler)
             {
-                _timers = new Timer[] {
+                _scheduler = scheduler;
+                _timers = new ITimer[] {
                     CreateTimer(20, () => Reminder?.Invoke(10)),
                     CreateTimer(25, () => Reminder?.Invoke(5)),
                     CreateTimer(30, () => Finished?.Invoke())
@@ -63,7 +64,7 @@ namespace Derpy
             {
                 foreach (var timer in _timers)
                 {
-                    timer.Enabled = false;
+                    timer.Stop();
                 }
             }
 
@@ -74,16 +75,19 @@ namespace Derpy
             public event FinishedEventHandler Finished;
         }
 
-        private const int TIMEOUT = 120; // Minutes
+        private const uint TIMEOUT = 120; // Minutes
 
+        private readonly IScheduler _scheduler;
         private Instance _instance;
         private Run _run;
-        private Timer _timeout;
+        private ITimer _timeout;
         public bool Active => !(_instance is null);
         public bool Running => !(_run is null);
 
         private static readonly CommandResult NO_CURRENT = CommandResult.FromError("There is no drawalong currently running!");
         private static readonly CommandResult RUNNING = CommandResult.FromError("You can't do that while the drawalong is running.");
+
+        public Drawalong(IScheduler scheduler) => _scheduler = scheduler;
 
         private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 
@@ -142,7 +146,7 @@ namespace Derpy
             if (Running) { return CommandResult.FromError("The drawalong is already running! Quick, to your pencils!"); }
 
             ClearTimeout();
-            _run = new Run();
+            _run = new Run(_scheduler);
             _run.Reminder += remaining => SendAsync($"{remaining} minutes reamining!");
             _run.Finished += () =>
             {
@@ -172,10 +176,7 @@ namespace Derpy
 
         private void SetupTimeout()
         {
-            _timeout = new Timer(TIMEOUT * 60 * 1000)
-            {
-                AutoReset = false
-            };
+            _timeout = _scheduler.CreateTimer(TIMEOUT * 60 * 1000);
             _timeout.Elapsed += (source, args) =>
             {
                 if (Active && !Running) { _instance = null; }

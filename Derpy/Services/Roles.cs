@@ -1,10 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace Derpy.Services
 {
@@ -18,7 +16,10 @@ namespace Derpy.Services
         };
         const string NSFW_ROLE = "nsfw opt-in";
 
-        private readonly List<(IGuildUser, Timer)> _waitingForConfirmation = new List<(IGuildUser, Timer)> { };
+        private readonly List<(IGuildUser, ITimer)> _waitingForConfirmation = new List<(IGuildUser, ITimer)> { };
+        private readonly IScheduler _scheduler;
+
+        public Roles(IScheduler scheduler) => _scheduler = scheduler;
 
         public async Task<RuntimeResult> SetRole(IGuild guild, IUser user, string roleName)
         {
@@ -74,7 +75,7 @@ namespace Derpy.Services
             return CommandResult.FromSuccess($"{string.Join("\n", groupDetails)}\nUsers without roles: {users.Count - usersWithRoles}");
         }
 
-        public async Task<RuntimeResult> EnableNsfw(IGuild guild, ISocketMessageChannel channel, IUser user)
+        public async Task<RuntimeResult> EnableNsfw(IGuild guild, IMessageChannel channel, IUser user)
         {
             var guildUser = await user.GuildUser(guild);
             var nsfwRole = GetNsfwRole(guild);
@@ -84,18 +85,15 @@ namespace Derpy.Services
                 return CommandResult.FromError("This command is not usable in this guild.");
             }
 
-            if (guildUser.RoleIds.Select(role => guild.GetRole(role).Name).Contains(NSFW_ROLE))
+            if (guildUser.RoleIds.Contains(nsfwRole.Id))
             {
                 return CommandResult.FromError("You have already opted in the adult channels!");
             }
 
-            (IGuildUser, Timer timer) match = _waitingForConfirmation.Find(((IGuildUser user, Timer) item) => user == item.user);
+            (IGuildUser, ITimer timer) match = _waitingForConfirmation.Find(((IGuildUser user, ITimer) item) => user.Id == item.user.Id);
             if (match == (null, null))
             {
-                var timer = new Timer(5 * 60 * 1000)
-                {
-                    AutoReset = false
-                };
+                var timer = _scheduler.CreateTimer(5 * 60 * 1000);
                 var message = await channel.SendMessageAsync(
                     $"{user.Username}, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.\n"
                     + "**Reminder:** Lying about your age may result in a server ban."
