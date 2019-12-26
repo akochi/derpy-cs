@@ -1,6 +1,7 @@
 ﻿using Derpy.Services;
 using Discord;
 using Moq;
+using Norn.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -141,7 +142,7 @@ namespace Derpy.Tests.Services
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-            _scheduler.FireAll();
+            _scheduler.AdvanceToNextTimer();
             Mock.Verify(message);
         }
 

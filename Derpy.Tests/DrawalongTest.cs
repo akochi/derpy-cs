@@ -1,5 +1,6 @@
 using Discord;
 using Moq;
+using Norn.Test;
 using Xunit;
 
 namespace Derpy.Tests

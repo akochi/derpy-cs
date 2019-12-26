@@ -2,6 +2,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Norn;
 using Sentry;
 using Serilog;
 using ServiceStack.Redis;
