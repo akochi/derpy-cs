@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using ServiceStack.Redis;
 using System.Linq;

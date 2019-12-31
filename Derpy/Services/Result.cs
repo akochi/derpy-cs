@@ -1,4 +1,4 @@
-﻿using Discord.Commands;
+using Discord.Commands;
 using Sentry;
 using Serilog;
 using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Norn;
 using System;
 using System.Collections.Generic;

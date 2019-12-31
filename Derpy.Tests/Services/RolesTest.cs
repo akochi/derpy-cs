@@ -1,4 +1,4 @@
-﻿using Derpy.Services;
+using Derpy.Services;
 using Discord;
 using Moq;
 using Norn.Test;
