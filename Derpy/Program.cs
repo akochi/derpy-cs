@@ -43,7 +43,7 @@ namespace Derpy
             };
 
             var _ = new Services.Result(_commands);
-            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services).Wait();
 
             Client.MessageReceived += HandleCommandAsync;
             Client.Disconnected += HandleDisconnection;
@@ -57,7 +57,7 @@ namespace Derpy
             return new ServiceCollection()
                 .AddSingleton(client)
                 .AddSingleton(new Services.Karma(client, redis))
-                .AddSingleton<Scheduler>()
+                .AddSingleton<IScheduler>(new Scheduler())
                 .AddSingleton<Drawalong>()
                 .AddSingleton<Services.Roles>()
                 .BuildServiceProvider();

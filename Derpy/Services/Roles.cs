@@ -133,7 +133,7 @@ namespace Derpy.Services
 
         private IRole GetNsfwRole(IGuild guild)
         {
-            return guild.Roles.First(role => role.Name == NSFW_ROLE);
+            return guild.Roles.FirstOrDefault(role => role.Name == NSFW_ROLE);
         }
     }
 }
