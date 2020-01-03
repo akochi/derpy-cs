@@ -73,6 +73,7 @@ namespace Derpy.Commands
             {
                 embed.AddField("Modules", string.Join('\n', modules));
             }
+            embed.AddField("Version", assembly.GetName().Version.ToString(3), inline: true);
 
             await ReplyAsync("Hello! I am **Derpy**, here to help you!", embed: embed.Build());
         }
