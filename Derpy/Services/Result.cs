@@ -24,7 +24,7 @@ namespace Derpy.Services
             {
                 if (!command.IsSpecified)
                 {
-                    await context.Channel.SendMessageAsync($"Unknomn command!");
+                    await context.Channel.SendMessageAsync($"Unknown command!");
                 }
                 else if (result is ExecuteResult executeResult && executeResult.Exception != null)
                 {
