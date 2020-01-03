@@ -51,14 +51,12 @@ namespace Derpy
 
         private static ServiceProvider LoadDependencies()
         {
-            var redis = new RedisClient();
-            var client = new DiscordSocketClient();
-
             return new ServiceCollection()
-                .AddSingleton(client)
-                .AddSingleton(new Services.Karma(client, redis))
+                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<IRedisClient>(new RedisClient())
                 .AddSingleton<IScheduler>(new Scheduler())
                 .AddSingleton<Drawalong>()
+                .AddSingleton<Services.Karma>()
                 .AddSingleton<Services.Roles>()
                 .BuildServiceProvider();
         }
