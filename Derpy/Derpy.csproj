@@ -22,4 +22,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources/*" />
   </ItemGroup>
+
+  <Target Name="Version" AfterTargets="Build">
+    <WriteLinesToFile File="$(OutputPath)VERSION" Lines="$(Version)" Overwrite="True" />
+  </Target>
 </Project>
