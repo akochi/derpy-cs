@@ -16,3 +16,4 @@ jobs:
       - name: Tag and push image
         run: |
           docker tag derpy-build docker.pkg.github.com/akochi/derpy-cs/derpy:${DERPY_VERSION}
+          docker push docker.pkg.github.com/akochi/derpy-cs/derpy:${DERPY_VERSION}
