@@ -1,6 +1,6 @@
 using Discord;
 using Discord.WebSocket;
-using ServiceStack.Redis;
+using StackExchange.Redis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,32 +11,32 @@ namespace Derpy.Services
         const string REDIS_KEY = "derpy.karma";
         const string REACTION_NAME = "plusplus";
 
-        private readonly IRedisClient _redis;
+        private readonly IDatabase _redis;
 
-        public Karma(DiscordSocketClient client, IRedisClient redis)
+        public Karma(DiscordSocketClient client, IDatabase redis)
         {
             _redis = redis;
             client.ReactionAdded += OnReactionAdded;
         }
 
-        public uint GetKarma(IUser user)
+        public async Task<uint> GetKarma(IUser user)
         {
-            var karma = _redis.GetValueFromHash(REDIS_KEY, user.Id.ToString());
+            var karma = await _redis.HashGetAsync(REDIS_KEY, user.Id.ToString());
             return string.IsNullOrEmpty(karma) ? 0 : uint.Parse(karma);
         }
 
         public void AddKarma(IUser user) => AddKarma(user, 1);
         public void AddKarma(IUser user, int karma)
         {
-            _redis.IncrementValueInHash(REDIS_KEY, user.Id.ToString(), karma);
+            _redis.HashIncrementAsync(REDIS_KEY, user.Id.ToString(), karma, CommandFlags.FireAndForget);
         }
 
-        public (int, int) GetStats()
+        public async Task<(int, int)> GetStats()
         {
-            var entries = _redis.GetAllEntriesFromHash(REDIS_KEY);
+            var entries = await _redis.HashGetAllAsync(REDIS_KEY);
 
             return (
-                entries.Count,
+                entries.Length,
                 entries.Sum(entry => int.Parse(entry.Value))
             );
         }

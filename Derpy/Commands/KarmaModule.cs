@@ -21,7 +21,7 @@ namespace Derpy.Commands
         [Summary("Shows the current karma value for an user")]
         public async Task ShowKarma(SocketUser user)
         {
-            await ReplyAsync($"Karma for {user.Username} is **{_service.GetKarma(user)}**.");
+            await ReplyAsync($"Karma for {user.Username} is **{await _service.GetKarma(user)}**.");
         }
 
         [Command("add")]
@@ -34,13 +34,11 @@ namespace Derpy.Commands
 
         [Command("stats")]
         [Summary("Shows all time stats")]
-        public Task<RuntimeResult> GetStats()
+        public async Task<RuntimeResult> GetStats()
         {
-            var (userCount, karmaTotal) = _service.GetStats();
+            var (userCount, karmaTotal) = await _service.GetStats();
 
-            return Task.FromResult(
-                CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.") as RuntimeResult
-            );
+            return CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.");
         }
     }
 }

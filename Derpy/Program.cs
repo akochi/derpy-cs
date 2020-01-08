@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Norn;
 using Sentry;
 using Serilog;
-using ServiceStack.Redis;
+using StackExchange.Redis;
 using System;
 using System.Reflection;
 using System.Threading;
@@ -51,9 +51,12 @@ namespace Derpy
 
         private static ServiceProvider LoadDependencies()
         {
+            var redisConnection = ConnectionMultiplexer.Connect("localhost");
+
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
-                .AddSingleton<IRedisClient>(new RedisClient())
+                .AddSingleton(redisConnection)
+                .AddSingleton(redisConnection.GetDatabase())
                 .AddSingleton<IScheduler>(new Scheduler())
                 .AddSingleton<Drawalong>()
                 .AddSingleton<Services.Karma>()
