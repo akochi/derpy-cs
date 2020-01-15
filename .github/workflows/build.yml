@@ -1,10 +1,7 @@
 name: Build
 on: 
   push:
-    branches:
-      - master
-    paths:
-      - Directory.Build.props
+    tags: ['v*']
 
 jobs:
   build:
