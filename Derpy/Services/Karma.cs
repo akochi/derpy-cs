@@ -1,6 +1,8 @@
 using Discord;
 using Discord.WebSocket;
 using StackExchange.Redis;
+using Serilog;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -49,6 +51,13 @@ namespace Derpy.Services
             }
 
             var message = await messageCache.GetOrDownloadAsync();
+
+            if (message.CreatedAt.Subtract(DateTimeOffset.Now).Days < 0)
+            {
+                return;
+            }
+
+            Log.Information("{giver} gives {receiver} karma", reaction.User.Value.Username, message.Author.Username);
             AddKarma(message.Author);
         }
     }
