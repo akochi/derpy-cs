@@ -96,7 +96,7 @@ namespace Derpy.Services
             {
                 var timer = _scheduler.CreateTimer(5 * 60 * 1000);
                 var message = await channel.SendMessageAsync(
-                    $"{user.Username}, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.\n"
+                    $"{user.Username}, you are trying to access 18+ channels. Repeat this command in the next 5 minutes to confirm.\n"
                     + "**Reminder:** Lying about your age may result in a server ban."
                 );
 

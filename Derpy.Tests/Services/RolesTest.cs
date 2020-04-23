@@ -183,7 +183,7 @@ namespace Derpy.Tests.Services
 
             channel.Setup(channel =>
                             channel.SendMessageAsync(
-                                "Moq, you are trying to access adult channels. Repeat this command in the next 5 minutes to confirm.\n"
+                                "Moq, you are trying to access 18+ channels. Repeat this command in the next 5 minutes to confirm.\n"
                                 + "**Reminder:** Lying about your age may result in a server ban.",
                                 false, null, null)
                         )
