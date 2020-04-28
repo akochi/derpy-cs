@@ -58,5 +58,26 @@ namespace Derpy.Tests
             Assert.Equal("You can't run a drawalong here!", result.Message);
             Assert.False(_drawalong.Running);
         }
+
+        [Fact]
+        public void Test_ComparesUsersWithCacheMiss()
+        {
+            var channel = new Mock<ITextChannel>();
+            var user1 = new Mock<IGuildUser>();
+            var user2 = new Mock<IGuildUser>();
+
+            // Those are two different instances referring to the same user, in the case we have a cache miss and load
+            // a new object.
+            user1.Setup(user => user.Id).Returns(42);
+            user2.Setup(user => user.Id).Returns(42);
+            user2.Setup(user => user.Nickname).Returns("User");
+
+            _drawalong.Create(channel.Object, user1.Object, "Test");
+
+            var result = _drawalong.Join(user2.Object);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("You are already in this drawalong, User!", result.Message);
+        }
     }
 }

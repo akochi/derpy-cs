@@ -9,6 +9,19 @@ namespace Derpy
 {
     public class Drawalong
     {
+        private class UserComparer : IEqualityComparer<IGuildUser>
+        {
+            public bool Equals(IGuildUser left, IGuildUser right)
+            {
+                return left.Id == right.Id;
+            }
+
+            public int GetHashCode(IGuildUser user)
+            {
+                return user.Id.GetHashCode();
+            }
+        }
+
         private class Instance
         {
             public string Topic { get; set; }
@@ -23,7 +36,7 @@ namespace Derpy
             {
                 Topic = topic;
                 Channel = channel;
-                _attendees = new HashSet<IGuildUser> { creator };
+                _attendees = new HashSet<IGuildUser>(new UserComparer()) { creator };
             }
 
             public CommandResult Join(IGuildUser user) =>
