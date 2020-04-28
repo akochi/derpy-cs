@@ -49,5 +49,10 @@ namespace Derpy.Commands
         [Command("start")]
         [Summary("Starts the drawalong timer")]
         public Task<RuntimeResult> Start() => _instance.Start().ToAsync();
+
+        // Fake command in case someone inverts `start` and new
+        [Command("start")]
+        public Task<RuntimeResult> Start([Remainder] string _) =>
+            CommandResult.FromError("Too many arguments. Perhaps you were looking for `%da new`?").ToAsync();
     }
 }
