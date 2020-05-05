@@ -25,6 +25,7 @@ namespace Derpy.Karma
         }
 
         [Command("add")]
+        [RequireOwner]
         [Summary("Give 1 point of karma to an user")]
         public Task AddKarma(SocketUser user)
         {
