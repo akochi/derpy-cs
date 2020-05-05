@@ -8,9 +8,9 @@ namespace Derpy.Tests
     public class DrawalongTest
     {
         private readonly TestScheduler _scheduler = new TestScheduler();
-        private readonly Drawalong _drawalong;
+        private readonly Drawalong.Service _drawalong;
 
-        public DrawalongTest() => _drawalong = new Drawalong(_scheduler);
+        public DrawalongTest() => _drawalong = new Drawalong.Service(_scheduler);
 
         [Fact]
         public void Test_NotActive()

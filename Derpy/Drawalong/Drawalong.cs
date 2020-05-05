@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Derpy
+namespace Derpy.Drawalong
 {
-    public class Drawalong
+    public class Service
     {
         private class UserComparer : IEqualityComparer<IGuildUser>
         {
@@ -101,7 +101,7 @@ namespace Derpy
         private static readonly CommandResult NO_CURRENT = CommandResult.FromError("There is no drawalong currently running!");
         private static readonly CommandResult RUNNING = CommandResult.FromError("You can't do that while the drawalong is running.");
 
-        public Drawalong(IScheduler scheduler) => _scheduler = scheduler;
+        public Service(IScheduler scheduler) => _scheduler = scheduler;
 
         private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
 

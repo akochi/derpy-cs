@@ -2,16 +2,16 @@ using Discord;
 using Discord.Commands;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Drawalong
 {
     [Group("da")]
     [Summary("Allows to start and manage drawalongs")]
-    public class DrawalongModule : ModuleBase<SocketCommandContext>
+    public class Commands : ModuleBase<SocketCommandContext>
     {
-        private readonly Drawalong _instance;
+        private readonly Service _instance;
         private IGuildUser Author() => Context.Guild.GetUser(Context.Message.Author.Id);
 
-        public DrawalongModule(Drawalong instance) => _instance = instance;
+        public Commands(Service instance) => _instance = instance;
 
         [Command("new")]
         [Summary("Creates a new drawalong")]
