@@ -59,7 +59,7 @@ namespace Derpy
                 .AddSingleton(redisConnection.GetDatabase())
                 .AddSingleton<IScheduler>(new Scheduler())
                 .AddSingleton<Drawalong.Service>()
-                .AddSingleton<Services.Karma>()
+                .AddSingleton<Karma.Service>()
                 .AddSingleton<Services.Roles>()
                 .BuildServiceProvider();
         }

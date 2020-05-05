@@ -6,16 +6,16 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Derpy.Services
+namespace Derpy.Karma
 {
-    public class Karma
+    public class Service
     {
         const string REDIS_KEY = "derpy.karma";
         const string REACTION_NAME = "plusplus";
 
         private readonly IDatabase _redis;
 
-        public Karma(DiscordSocketClient client, IDatabase redis)
+        public Service(DiscordSocketClient client, IDatabase redis)
         {
             _redis = redis;
             client.ReactionAdded += OnReactionAdded;
