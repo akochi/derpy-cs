@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Norn;
-using System.Linq;
 using System.Threading.Tasks;
 using Derpy.Result;
 
