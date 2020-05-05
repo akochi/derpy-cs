@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Derpy.Commands;
+using Derpy.Result;
 
 namespace Derpy.Drawalong
 {

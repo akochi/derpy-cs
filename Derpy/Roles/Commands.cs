@@ -1,6 +1,6 @@
 using Discord.Commands;
 using System.Threading.Tasks;
-using Derpy.Commands;
+using Derpy.Result;
 
 namespace Derpy.Roles
 {

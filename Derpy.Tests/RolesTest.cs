@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using Derpy.Commands;
+using Derpy.Result;
 
 namespace Derpy.Tests
 {

@@ -1,4 +1,4 @@
-namespace Derpy.Commands
+namespace Derpy.Result
 {
     public class Success : IResult {
         public bool Successful => true;

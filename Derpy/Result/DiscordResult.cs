@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace Derpy.Commands
+namespace Derpy.Result
 {
     public class DiscordResult : RuntimeResult
     {

@@ -1,4 +1,4 @@
-namespace Derpy.Commands
+namespace Derpy.Result
 {
     public class Reply : IResult
     {

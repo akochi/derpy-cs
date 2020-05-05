@@ -3,13 +3,13 @@ using Sentry;
 using Serilog;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Result
 {
     using IDiscordResult = Discord.Commands.IResult;
 
-    class ResultService
+    class Service
     {
-        public ResultService(CommandService commands)
+        public Service(CommandService commands)
         {
             commands.CommandExecuted += CommandExecuted;
         }
