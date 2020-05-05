@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Derpy.Tests.Services
+namespace Derpy.Tests
 {
     public class RolesTest
     {
         private readonly TestScheduler _scheduler = new TestScheduler();
-        private readonly Roles _service;
+        private readonly Roles.Service _service;
 
         const int USER_ID = 42;
         const int UNICORN_ROLE_ID = 1;
@@ -28,7 +28,7 @@ namespace Derpy.Tests.Services
 
         public RolesTest()
         {
-            _service = new Roles(_scheduler);
+            _service = new Roles.Service(_scheduler);
 
             _user.Setup(user => user.Id).Returns(USER_ID);
             _user.Setup(user => user.Username).Returns("Moq");

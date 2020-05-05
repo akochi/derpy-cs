@@ -60,7 +60,7 @@ namespace Derpy
                 .AddSingleton<IScheduler>(new Scheduler())
                 .AddSingleton<Drawalong.Service>()
                 .AddSingleton<Karma.Service>()
-                .AddSingleton<Services.Roles>()
+                .AddSingleton<Roles.Service>()
                 .BuildServiceProvider();
         }
 

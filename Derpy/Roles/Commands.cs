@@ -1,15 +1,15 @@
 using Discord.Commands;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Roles
 {
     [Group("roles")]
     [Summary("Manages membership to local roles")]
-    public class RolesModule : ModuleBase<SocketCommandContext>
+    public class Commands : ModuleBase<SocketCommandContext>
     {
-        private readonly Services.Roles _service;
+        private readonly Service _service;
 
-        public RolesModule(Services.Roles service) => _service = service;
+        public Commands(Service service) => _service = service;
 
         [Command("earth")]
         [Summary("Become a strong and proud earth pony")]

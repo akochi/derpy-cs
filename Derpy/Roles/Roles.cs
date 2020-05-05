@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Derpy.Services
+namespace Derpy.Roles
 {
-    public class Roles
+    public class Service
     {
         static readonly string[] ROLES = {
             "Earth Ponies",
@@ -20,7 +20,7 @@ namespace Derpy.Services
         private readonly List<(IGuildUser, ITimer)> _waitingForConfirmation = new List<(IGuildUser, ITimer)> { };
         private readonly IScheduler _scheduler;
 
-        public Roles(IScheduler scheduler) => _scheduler = scheduler;
+        public Service(IScheduler scheduler) => _scheduler = scheduler;
 
         public async Task<RuntimeResult> SetRole(IGuild guild, IUser user, string roleName)
         {
