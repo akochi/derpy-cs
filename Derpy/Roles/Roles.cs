@@ -4,6 +4,7 @@ using Norn;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Derpy.Commands;
 
 namespace Derpy.Roles
 {
@@ -33,7 +34,7 @@ namespace Derpy.Roles
             {
                 if (existingRole.Name == roleName)
                 {
-                    return CommandResult.FromError($"You already are a {roleName}!");
+                    return Result.FromError($"You already are a {roleName}!");
                 }
 
                 await guildUser.RemoveRoleAsync(existingRole);
@@ -41,7 +42,7 @@ namespace Derpy.Roles
 
             var newRole = guild.Roles.First(role => role.Name == roleName);
             await guildUser.AddRoleAsync(newRole);
-            return CommandResult.FromSuccess($"You are now part of the {roleName}, {guildUser.Name()}!");
+            return Result.FromSuccess($"You are now part of the {roleName}, {guildUser.Name()}!");
         }
 
         public async Task<RuntimeResult> ClearRoles(IGuild guild, IUser user)
@@ -54,11 +55,11 @@ namespace Derpy.Roles
 
             if (existingRoles.Length == 0)
             {
-                return CommandResult.FromError("Mh, I found nothing to remove...");
+                return Result.FromError("Mh, I found nothing to remove...");
             }
 
             await guildUser.RemoveRolesAsync(existingRoles);
-            return CommandResult.FromSuccess("Here you go, just as new!");
+            return Result.FromSuccess("Here you go, just as new!");
         }
 
         public async Task<RuntimeResult> ShowStats(IGuild guild)
@@ -73,7 +74,7 @@ namespace Derpy.Roles
             var usersWithRoles = groupStats.Select(((string, int count) item) => item.count).Sum();
             var groupDetails = groupStats.Select(((string name, int count) item) => $"{item.name}: {item.count}");
 
-            return CommandResult.FromSuccess($"{string.Join("\n", groupDetails)}\nUsers without roles: {users.Count - usersWithRoles}");
+            return Result.FromSuccess($"{string.Join("\n", groupDetails)}\nUsers without roles: {users.Count - usersWithRoles}");
         }
 
         public async Task<RuntimeResult> EnableNsfw(IGuild guild, IMessageChannel channel, IUser user)
@@ -83,12 +84,12 @@ namespace Derpy.Roles
 
             if (nsfwRole == null)
             {
-                return CommandResult.FromError("This command is not usable in this guild.");
+                return Result.FromError("This command is not usable in this guild.");
             }
 
             if (guildUser.RoleIds.Contains(nsfwRole.Id))
             {
-                return CommandResult.FromError("You have already opted in the adult channels!");
+                return Result.FromError("You have already opted in the adult channels!");
             }
 
             (IGuildUser, ITimer timer) match = _waitingForConfirmation.Find(((IGuildUser user, ITimer) item) => user.Id == item.user.Id);
@@ -107,7 +108,7 @@ namespace Derpy.Roles
                 };
                 _waitingForConfirmation.Add((guildUser, timer));
                 timer.Start();
-                return CommandResult.FromSuccess();
+                return Result.FromSuccess();
             }
 
             match.timer.Stop();
@@ -115,7 +116,7 @@ namespace Derpy.Roles
 
             var newRole = guild.Roles.First(role => role.Name == NSFW_ROLE);
             await guildUser.AddRoleAsync(newRole);
-            return CommandResult.FromSuccess("You have been allowed into the adult channels!");
+            return Result.FromSuccess("You have been allowed into the adult channels!");
         }
 
         public async Task<RuntimeResult> DisableNsfw(IGuild guild, IUser user)
@@ -126,9 +127,9 @@ namespace Derpy.Roles
             if (guildUser.RoleIds.Contains(nsfwRole.Id))
             {
                 await guildUser.RemoveRoleAsync(nsfwRole);
-                return CommandResult.FromSuccess("You have been removed from the adult channels!");
+                return Result.FromSuccess("You have been removed from the adult channels!");
             }
-            return CommandResult.FromError("You were not opted in the adult channels!");
+            return Result.FromError("You were not opted in the adult channels!");
         }
 
         private IRole GetNsfwRole(IGuild guild)

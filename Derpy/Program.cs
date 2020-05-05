@@ -42,7 +42,7 @@ namespace Derpy
                 return Task.CompletedTask;
             };
 
-            var _ = new Services.Result(_commands);
+            var _ = new Commands.ResultService(_commands);
             _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services).Wait();
 
             Client.MessageReceived += HandleCommandAsync;

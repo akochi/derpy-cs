@@ -1,6 +1,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Threading.Tasks;
+using Derpy.Commands;
 
 namespace Derpy.Karma
 {
@@ -38,7 +39,7 @@ namespace Derpy.Karma
         {
             var (userCount, karmaTotal) = await _service.GetStats();
 
-            return CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.");
+            return Result.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.");
         }
     }
 }

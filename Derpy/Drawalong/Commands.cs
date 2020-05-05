@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using System.Threading.Tasks;
+using Derpy.Commands;
 
 namespace Derpy.Drawalong
 {
@@ -53,6 +54,6 @@ namespace Derpy.Drawalong
         // Fake command in case someone inverts `start` and new
         [Command("start")]
         public Task<RuntimeResult> Start([Remainder] string _) =>
-            CommandResult.FromError("Too many arguments. Perhaps you were looking for `%da new`?").ToAsync();
+            Result.FromError("Too many arguments. Perhaps you were looking for `%da new`?").ToAsync();
     }
 }

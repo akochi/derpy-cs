@@ -1,4 +1,3 @@
-using Derpy.Services;
 using Discord;
 using Moq;
 using Norn.Test;
@@ -6,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Derpy.Commands;
 
 namespace Derpy.Tests
 {
@@ -54,7 +54,7 @@ namespace Derpy.Tests
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as Result;
 
             _guildUser.Verify(user => user.AddRoleAsync(_pegasusRole.Object, It.IsAny<RequestOptions>()));
             Assert.True(result.IsSuccess);
@@ -66,7 +66,7 @@ namespace Derpy.Tests
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { PEGASUS_ROLE_ID });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as Result;
 
             _guildUser.Verify(user => user.AddRoleAsync(It.IsAny<IRole>(), It.IsAny<RequestOptions>()), Times.Never);
             Assert.False(result.IsSuccess);
@@ -78,7 +78,7 @@ namespace Derpy.Tests
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { UNICORN_ROLE_ID });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as Result;
 
             _guildUser.Verify(user => user.RemoveRoleAsync(_unicornRole.Object, It.IsAny<RequestOptions>()));
             _guildUser.Verify(user => user.AddRoleAsync(_pegasusRole.Object, It.IsAny<RequestOptions>()));
@@ -94,7 +94,7 @@ namespace Derpy.Tests
             miscRole.Setup(guild => guild.Name).Returns("Misc");
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { UNICORN_ROLE_ID, 99 });
 
-            var result = await _service.ClearRoles(_guild.Object, _user.Object) as CommandResult;
+            var result = await _service.ClearRoles(_guild.Object, _user.Object) as Result;
 
             _guildUser.Verify(user => user.RemoveRolesAsync(new IRole[] { _unicornRole.Object }, It.IsAny<RequestOptions>()));
             Assert.True(result.IsSuccess);
@@ -106,7 +106,7 @@ namespace Derpy.Tests
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.ClearRoles(_guild.Object, _user.Object) as CommandResult;
+            var result = await _service.ClearRoles(_guild.Object, _user.Object) as Result;
 
             _guildUser.Verify(user => user.RemoveRolesAsync(It.IsAny<IEnumerable<IRole>>(), It.IsAny<RequestOptions>()), Times.Never);
             Assert.False(result.IsSuccess);
@@ -123,7 +123,7 @@ namespace Derpy.Tests
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
             var message = PrepareMessage(channel);
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as Result;
             Mock.Verify(channel);
 
             Assert.True(result.IsSuccess);
@@ -152,7 +152,7 @@ namespace Derpy.Tests
             var channel = new Mock<IMessageChannel>();
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { NSFW_ROLE_ID });
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as Result;
 
             Assert.False(result.IsSuccess);
             Assert.Equal("You have already opted in the adult channels!", result.Message);
@@ -166,11 +166,11 @@ namespace Derpy.Tests
 
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as Result;
             Assert.True(result.IsSuccess);
             Mock.Verify(message);
 
-            result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as Result;
             Assert.True(result.IsSuccess);
             Assert.Equal("You have been allowed into the adult channels!", result.Message);
 
