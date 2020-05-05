@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 namespace Derpy.Commands
 {
+    using IDiscordResult = Discord.Commands.IResult;
+
     class ResultService
     {
         public ResultService(CommandService commands)
@@ -12,11 +14,11 @@ namespace Derpy.Commands
             commands.CommandExecuted += CommandExecuted;
         }
 
-        private async Task CommandExecuted(Discord.Optional<CommandInfo> command, ICommandContext context, IResult result)
+        private async Task CommandExecuted(Discord.Optional<CommandInfo> command, ICommandContext context, IDiscordResult result)
         {
-            if (result is Result commandResult)
+            if (result is DiscordResult commandResult)
             {
-                await HandleResult(commandResult, context);
+                await HandleResult(commandResult.Inner, context);
                 return;
             }
 
@@ -43,7 +45,7 @@ namespace Derpy.Commands
             }
         }
 
-        private async Task HandleResult(Result result, ICommandContext context)
+        private async Task HandleResult(IResult result, ICommandContext context)
         {
             if (!string.IsNullOrEmpty(result.Message))
             {

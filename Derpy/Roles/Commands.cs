@@ -1,5 +1,6 @@
 using Discord.Commands;
 using System.Threading.Tasks;
+using Derpy.Commands;
 
 namespace Derpy.Roles
 {
@@ -13,31 +14,31 @@ namespace Derpy.Roles
 
         [Command("earth")]
         [Summary("Become a strong and proud earth pony")]
-        public Task<RuntimeResult> Earth() => _service.SetRole(Context.Guild, Context.Message.Author, "Earth Ponies");
+        public async Task<RuntimeResult> Earth() => new DiscordResult(await _service.SetRole(Context.Guild, Context.Message.Author, "Earth Ponies"));
         [Command("unicorn")]
         [Summary("Become a graceful and magical unicorn")]
-        public Task<RuntimeResult> Unicorn() => _service.SetRole(Context.Guild, Context.Message.Author, "Unicorns");
+        public async Task<RuntimeResult> Unicorn() => new DiscordResult(await _service.SetRole(Context.Guild, Context.Message.Author, "Unicorns"));
         [Command("pegasus")]
         [Summary("Become an agile and fierce pegasus")]
-        public Task<RuntimeResult> Pegasus() => _service.SetRole(Context.Guild, Context.Message.Author, "Pegasi");
+        public async Task<RuntimeResult> Pegasus() => new DiscordResult(await _service.SetRole(Context.Guild, Context.Message.Author, "Pegasi"));
         [Command("equestrian")]
         [Summary("For those who are not ponies")]
-        public Task<RuntimeResult> Equestrian() => _service.SetRole(Context.Guild, Context.Message.Author, "Equestrians");
+        public async Task<RuntimeResult> Equestrian() => new DiscordResult(await _service.SetRole(Context.Guild, Context.Message.Author, "Equestrians"));
 
         [Command("clear")]
         [Summary("Clear all belonging to any group")]
-        public Task<RuntimeResult> Clear() => _service.ClearRoles(Context.Guild, Context.Message.Author);
+        public async Task<RuntimeResult> Clear() => new DiscordResult(await _service.ClearRoles(Context.Guild, Context.Message.Author));
 
         [Command("stats")]
         [Summary("Shows statistics about group membership")]
-        public Task<RuntimeResult> Stats() => _service.ShowStats(Context.Guild);
+        public async Task<RuntimeResult> Stats() => new DiscordResult(await _service.ShowStats(Context.Guild));
 
         [Command("nsfw on")]
         [Summary("Enables access to adult channels")]
-        public Task<RuntimeResult> EnableNsfw() => _service.EnableNsfw(Context.Guild, Context.Channel, Context.Message.Author);
+        public async Task<RuntimeResult> EnableNsfw() => new DiscordResult(await _service.EnableNsfw(Context.Guild, Context.Channel, Context.Message.Author));
 
         [Command("nsfw off")]
         [Summary("Disables access to adult channels")]
-        public Task<RuntimeResult> DisableNsfw() => _service.DisableNsfw(Context.Guild, Context.Message.Author);
+        public async Task<RuntimeResult> DisableNsfw() => new DiscordResult(await _service.DisableNsfw(Context.Guild, Context.Message.Author));
     }
 }

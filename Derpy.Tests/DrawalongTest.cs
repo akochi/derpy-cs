@@ -27,7 +27,6 @@ namespace Derpy.Tests
 
             var result = _drawalong.Create(channel.Object, user.Object, "Test");
 
-            Assert.True(result.IsSuccess);
             Assert.Equal("Drawalong created! Topic is \"Test\".", result.Message);
             Assert.True(_drawalong.Active);
             Assert.False(_drawalong.Running);
@@ -42,7 +41,6 @@ namespace Derpy.Tests
             var _ = _drawalong.Create(channel.Object, user.Object, "Test");
             var result = _drawalong.Create(channel.Object, user.Object, "Copycat");
 
-            Assert.False(result.IsSuccess);
             Assert.Equal("A drawalong is already running!", result.Message);
         }
 
@@ -54,7 +52,6 @@ namespace Derpy.Tests
 
             var result = _drawalong.Create(channel.Object, user.Object, "Test");
 
-            Assert.False(result.IsSuccess);
             Assert.Equal("You can't run a drawalong here!", result.Message);
             Assert.False(_drawalong.Running);
         }
@@ -76,7 +73,6 @@ namespace Derpy.Tests
 
             var result = _drawalong.Join(user2.Object);
 
-            Assert.False(result.IsSuccess);
             Assert.Equal("You are already in this drawalong, User!", result.Message);
         }
     }
