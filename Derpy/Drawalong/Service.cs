@@ -1,7 +1,5 @@
-using Discord;
+﻿using Discord;
 using Norn;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Derpy.Result;
@@ -10,86 +8,6 @@ namespace Derpy.Drawalong
 {
     public class Service
     {
-        private class UserComparer : IEqualityComparer<IGuildUser>
-        {
-            public bool Equals(IGuildUser left, IGuildUser right)
-            {
-                return left.Id == right.Id;
-            }
-
-            public int GetHashCode(IGuildUser user)
-            {
-                return user.Id.GetHashCode();
-            }
-        }
-
-        private class Instance
-        {
-            public string Topic { get; set; }
-            public ITextChannel Channel { get; }
-            public bool Empty => _attendees.Count == 0;
-            private readonly HashSet<IGuildUser> _attendees;
-
-            public string GetMentions() =>
-                string.Join(", ", _attendees.Select(attendee => attendee.Mention));
-
-            public Instance(ITextChannel channel, IGuildUser creator, string topic)
-            {
-                Topic = topic;
-                Channel = channel;
-                _attendees = new HashSet<IGuildUser>(new UserComparer()) { creator };
-            }
-
-            public IResult Join(IGuildUser user) =>
-                new Reply(
-                    _attendees.Add(user) ? $"You're in, {user.Name()}!" : $"You are already in this drawalong, {user.Name()}!"
-                );
-
-            public IResult Leave(IGuildUser user) =>
-                new Reply(
-                    _attendees.Remove(user) ? $"You're out, {user.Name()}!" : "You're not in this drawalong!?"
-                );
-        }
-
-        private class Run
-        {
-            private readonly IScheduler _scheduler;
-            private readonly ITimer[] _timers;
-
-            private ITimer CreateTimer(uint timeout, Action action)
-            {
-                var timer = _scheduler.CreateTimer(timeout * 1000 * 60);
-                timer.Elapsed += (source, args) => action.Invoke();
-                timer.AutoReset = false;
-                timer.Start();
-                return timer;
-            }
-
-            public Run(IScheduler scheduler)
-            {
-                _scheduler = scheduler;
-                _timers = new ITimer[] {
-                    CreateTimer(20, () => Reminder?.Invoke(10)),
-                    CreateTimer(25, () => Reminder?.Invoke(5)),
-                    CreateTimer(30, () => Finished?.Invoke())
-                };
-            }
-
-            public void Cancel()
-            {
-                foreach (var timer in _timers)
-                {
-                    timer.Stop();
-                }
-            }
-
-            public delegate void TimeoutEventHandler(int duration);
-            public event TimeoutEventHandler Reminder;
-
-            public delegate void FinishedEventHandler();
-            public event FinishedEventHandler Finished;
-        }
-
         private const uint TIMEOUT = 120; // Minutes
 
         private readonly IScheduler _scheduler;
