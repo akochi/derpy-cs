@@ -6,14 +6,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Help
 {
-    public class HelpModule : ModuleBase<SocketCommandContext>
+    public class Commands : ModuleBase<SocketCommandContext>
     {
         private static readonly Color EmbedColor = new Color(129, 129, 146);
         private readonly CommandService _service;
 
-        public HelpModule(CommandService service)
+        public Commands(CommandService service)
         {
             _service = service;
         }
