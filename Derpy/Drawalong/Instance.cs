@@ -1,35 +1,85 @@
 using Discord;
+using Norn;
 using System.Collections.Generic;
-using Derpy.Result;
 using System.Linq;
 
 namespace Derpy.Drawalong
 {
     public class Instance
     {
+        private const uint DEFAULT_TIMEOUT = 120;
+
+        #region Properties
         public string Topic { get; set; }
-        public ITextChannel Channel { get; }
-        public bool Empty => _attendees.Count == 0;
-        private readonly HashSet<IGuildUser> _attendees;
+        public readonly ITextChannel Channel;
+        public readonly HashSet<IGuildUser> Attendees;
 
-        public string GetMentions() =>
-            string.Join(", ", _attendees.Select(attendee => attendee.Mention));
+        private readonly IScheduler _scheduler;
+        private Run _run = null;
+        private ITimer _expirationTimer = null;
+        #endregion
 
-        public Instance(ITextChannel channel, IGuildUser creator, string topic)
+        #region Calculated properties
+        public bool Empty => Attendees.Count == 0;
+        public bool Running => _run != null;
+        #endregion
+
+        #region Events
+        public delegate void ExpirationEventHandler();
+        public event ExpirationEventHandler Expired;
+
+        public delegate void RemainingTimeHandler(uint remainingTime);
+        public event RemainingTimeHandler RemainingTimeNotification;
+
+        public delegate void FinishEvent();
+        public event FinishEvent Finished;
+        #endregion
+
+        public string Mentions =>
+            string.Join(", ", from attendee in Attendees select attendee.Mention);
+
+        public Instance(ITextChannel channel, IScheduler scheduler)
         {
-            Topic = topic;
+            _scheduler = scheduler;
             Channel = channel;
-            _attendees = new HashSet<IGuildUser>(EntityComparer.Instance) { creator };
+            Attendees = new HashSet<IGuildUser>(EntityComparer.Instance);
+
+            StartExpirationTimer();
         }
 
-        public IResult Join(IGuildUser user) =>
-            new Reply(
-                _attendees.Add(user) ? $"You're in, {user.Name()}!" : $"You are already in this drawalong, {user.Name()}!"
-            );
+        public void Start()
+        {
+            StopExpirationTimer();
+            _run = new Run(
+                _scheduler,
+                remainingTime => RemainingTimeNotification(remainingTime),
+                () => {
+                    _run = null;
+                    StartExpirationTimer();
 
-        public IResult Leave(IGuildUser user) =>
-            new Reply(
-                _attendees.Remove(user) ? $"You're out, {user.Name()}!" : "You're not in this drawalong!?"
-            );
+                    Finished();
+                });
+        }
+
+        public void Cancel()
+        {
+            _run?.Cancel();
+            _run = null;
+
+            StartExpirationTimer();
+        }
+
+        private void StartExpirationTimer()
+        {
+            _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000, true);
+            _expirationTimer.Elapsed += (sender, args) => Expired();
+            _expirationTimer.Start();
+        }
+
+        private void StopExpirationTimer()
+        {
+            _expirationTimer?.Stop();
+            _expirationTimer = null;
+        }
     }
 }

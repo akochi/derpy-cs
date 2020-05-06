@@ -1,127 +1,132 @@
-﻿using Discord;
+﻿using Derpy.Result;
+using Discord;
 using Norn;
-using System.Threading.Tasks;
-using Derpy.Result;
 
 namespace Derpy.Drawalong
 {
     public class Service
     {
-        private const uint TIMEOUT = 120; // Minutes
+        private Provider _provider;
+        private IScheduler _scheduler;
 
-        private readonly IScheduler _scheduler;
-        private Instance _instance;
-        private Run _run;
-        private ITimer _timeout;
-        public bool Active => !(_instance is null);
-        public bool Running => !(_run is null);
-
-        private static readonly IResult NO_CURRENT = new Reply("There is no drawalong currently running!");
-        private static readonly IResult RUNNING = new Reply("You can't do that while the drawalong is running.");
-
-        public Service(IScheduler scheduler) => _scheduler = scheduler;
-
-        private Task SendAsync(string message) => _instance.Channel.SendMessageAsync(message);
-
-        public IResult Create(IMessageChannel channel, IGuildUser creator, string topic)
+        public Service(IScheduler scheduler)
         {
-            if (Active) { return new Reply("A drawalong is already running!"); }
+            _provider = new Provider();
+            _scheduler = scheduler;
+        }
+
+        private readonly IResult NO_DRAWALONG = new Reply("There is no drawalong active here!");
+        private readonly IResult WRONG_TIME = new Reply("This is not the moment to use that!");
+
+        public Drawalong.Instance GetInstance(ITextChannel channel) => _provider.GetInstance(channel);
+
+        public IResult New(IChannel channel, IGuildUser initialUser, string topic = null)
+        {
             if (!(channel is ITextChannel)) { return new Reply("You can't run a drawalong here!"); }
+            var textChannel = channel as ITextChannel;
+            if (_provider.HasInstance(textChannel)) { return new Reply("There is already a drawalong active here!"); }
 
-            _instance = new Instance(channel as ITextChannel, creator, topic);
-            SetupTimeout();
-            return new Reply($"Drawalong created! Topic is \"{_instance.Topic}\".");
-        }
+            var instance = _provider.CreateInstance(textChannel, _scheduler);
+            instance.Topic = topic;
+            instance.Attendees.Add(initialUser);
 
-        public IResult Clear()
-        {
-            if (!Active) { return NO_CURRENT; }
-            if (Running) { return new Reply("You can't clear a running drawalong!"); }
-
-            _instance = null;
-            ClearTimeout();
-            return new Reply("Drawalong cleared!");
-        }
-
-        public IResult Join(IGuildUser user) =>
-            Active ? _instance.Join(user) : NO_CURRENT;
-
-        public IResult Leave(IGuildUser user)
-        {
-            if (!Active) { return NO_CURRENT; }
-            var result = _instance.Leave(user);
-
-            if (!result.Successful || !_instance.Empty) { return result; }
-
-            _run?.Cancel();
-            _run = null;
-            _instance = null;
-
-            return new Reply($"You were the last one, {user.Name()}, so I clear the drawalong. See y'all another time!");
-        }
-
-        public IResult GetTopic() =>
-            Active ? new Reply($"Current topic is \"{_instance.Topic}\".") : NO_CURRENT;
-
-        public IResult SetTopic(string newTopic)
-        {
-            if (!Active) { return NO_CURRENT; }
-            if (Running) { return new Reply("You can't change the topic of a running drawalong!"); }
-
-            _instance.Topic = newTopic;
-            return new Reply($"Got it! New topic is \"{newTopic}\".");
-        }
-
-        public IResult Start()
-        {
-            if (!Active) { return NO_CURRENT; }
-            if (Running) { return new Reply("The drawalong is already running! Quick, to your pencils!"); }
-
-            ClearTimeout();
-            _run = new Run(_scheduler);
-            _run.Reminder += remaining => SendAsync($"{remaining} minutes reamining!");
-            _run.Finished += () =>
+            instance.RemainingTimeNotification += (remaining) =>
             {
-                SendAsync($"{_instance.GetMentions()}\nFinished! Everyone drop their pencils!");
-                _run = null;
-                SetupTimeout();
+                textChannel.SendMessageAsync($"{remaining} minutes reamining!");
+            };
+            instance.Finished += () =>
+            {
+                textChannel.SendMessageAsync($"{instance.Mentions}\nFinished! Everyone drop their pencils!");
             };
 
-            return new Reply($"{_instance.GetMentions()}\n**Drawalong has started!** Topic is\"{_instance.Topic}\". Quick, to your pencils!");
+            return new Reply($"Drawalong created! Topic is \"{instance.Topic}\".");
         }
 
-        public IResult Boop(IGuildUser user)
+        public IResult Join(ITextChannel channel, IGuildUser user)
         {
-            if (!Active) { return NO_CURRENT; }
-            if (Running) { return RUNNING; }
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
 
-            return new Reply($"{user.Name()} is interested in a drawalong! Topic is: \"{_instance.Topic}\".\n@here Use `%da join` if interested!");
-        }
-
-        public IResult Notify()
-        {
-            if (!Active) { return NO_CURRENT; }
-            if (Running) { return RUNNING; }
-
-            return new Reply($"The drawalong is about to start! Are you ready?\n{_instance.GetMentions()}");
-        }
-
-        private void SetupTimeout()
-        {
-            _timeout = _scheduler.CreateTimer(TIMEOUT * 60 * 1000);
-            _timeout.Elapsed += (source, args) =>
+            if (!instance.Attendees.Add(user))
             {
-                if (Active && !Running) { _instance = null; }
-                _timeout = null;
-            };
+                return new Reply($"You are already on the list, {user.Name()}!");
+            }
 
-            _timeout.Start();
+            return new Reply($"You have been added to the list, {user.Name()}!");
         }
 
-        private void ClearTimeout()
+        public IResult Leave(ITextChannel channel, IGuildUser user)
         {
-            _timeout?.Stop();
-            _timeout = null;
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+
+            if (!instance.Attendees.Remove(user))
+            {
+                return new Reply($"You are not on the list, {user.Name()}!?");
+            }
+
+            if (instance.Empty)
+            {
+                _provider.ClearInstance(channel);
+                return new Reply("There is noone left in the Drawalong, I'll clear it now. See y'all another time!");
+            }
+
+            return new Reply($"You have been removed from the list, {user.Name()}. Have a nice day!");
+        }
+
+        public IResult Boop(ITextChannel channel, IGuildUser user)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+            if (instance.Running) { return WRONG_TIME; }
+
+            return new Reply($"{user.Name()} is interested in a drawalong! Topic is: \"{instance.Topic}\".\n@here Use `%da join` if interested!");
+        }
+
+        public IResult Notify(ITextChannel channel)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+            if (instance.Running) { return WRONG_TIME; }
+
+            return new Reply($"The drawalong is about to start! Are you ready?\n{instance.Mentions}");
+        }
+
+        public IResult Start(ITextChannel channel)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+            if (instance.Running) { return WRONG_TIME; }
+
+            instance.Start();
+            return new Reply($"{instance.Mentions}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
+        }
+
+        public IResult ShowTopic(ITextChannel channel)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+
+            return new Reply($"Current topic is **{instance.Topic}**.\nYou can change it by user `%da topic [your new topic]`.");
+        }
+
+        public IResult SetTopic(ITextChannel channel, string topic)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+
+            instance.Topic = topic;
+            return new Reply($"Got it! New topic is **{topic}**, everyone!");
+        }
+
+        public IResult Clear(ITextChannel channel)
+        {
+            var instance = _provider.GetInstance(channel);
+            if (instance == null) { return NO_DRAWALONG; }
+            if (instance.Running) { return WRONG_TIME; }
+
+            _provider.ClearInstance(channel);
+            return new Reply("Drawalong has been cleared! See you next time, y'all! :pencil:");
         }
     }
 }
