@@ -9,7 +9,7 @@ namespace Derpy.Drawalong
 
         private ITimer CreateTimer(IScheduler scheduler, uint timeout, Action action)
         {
-            var timer = scheduler.CreateTimer(timeout * 100 * 60);
+            var timer = scheduler.CreateTimer(timeout * 1000 * 60);
             timer.Elapsed += (source, args) => action.Invoke();
             timer.AutoReset = false;
             timer.Start();
