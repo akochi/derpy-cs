@@ -20,7 +20,7 @@ namespace Derpy.Drawalong
 
         public Instance CreateInstance(ITextChannel channel, IScheduler scheduler)
         {
-            var instance = new Instance(channel, scheduler);
+            var instance = new Instance(scheduler);
             _instances[channel] = instance;
 
             instance.Expired += () => ClearInstance(channel);

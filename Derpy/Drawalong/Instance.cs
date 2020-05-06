@@ -11,7 +11,6 @@ namespace Derpy.Drawalong
 
         #region Properties
         public string Topic { get; set; }
-        public readonly ITextChannel Channel;
         public readonly HashSet<IGuildUser> Attendees;
 
         private readonly IScheduler _scheduler;
@@ -38,10 +37,9 @@ namespace Derpy.Drawalong
         public string Mentions =>
             string.Join(", ", from attendee in Attendees select attendee.Mention);
 
-        public Instance(ITextChannel channel, IScheduler scheduler)
+        public Instance(IScheduler scheduler)
         {
             _scheduler = scheduler;
-            Channel = channel;
             Attendees = new HashSet<IGuildUser>(EntityComparer.Instance);
 
             StartExpirationTimer();
