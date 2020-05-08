@@ -42,7 +42,7 @@ namespace Derpy
                 return Task.CompletedTask;
             };
 
-            var _ = new Services.Result(_commands);
+            var _ = new Result.Service(_commands);
             _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services).Wait();
 
             Client.MessageReceived += HandleCommandAsync;
@@ -58,9 +58,9 @@ namespace Derpy
                 .AddSingleton(redisConnection)
                 .AddSingleton(redisConnection.GetDatabase())
                 .AddSingleton<IScheduler>(new Scheduler())
-                .AddSingleton<Drawalong>()
-                .AddSingleton<Services.Karma>()
-                .AddSingleton<Services.Roles>()
+                .AddSingleton<Drawalong.Service>()
+                .AddSingleton<Karma.Service>()
+                .AddSingleton<Roles.Service>()
                 .BuildServiceProvider();
         }
 

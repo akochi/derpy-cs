@@ -6,11 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Hugs
 {
     [Group("hug")]
     [Summary("Initialises SnugglePone® 0.42 protocols")]
-    public class HugModule : ModuleBase<SocketCommandContext>
+    public class Commands : ModuleBase<SocketCommandContext>
     {
         static readonly string[] HUGS = LoadFromResources("Hugs");
         static readonly string[] GROUP_HUGS = LoadFromResources("GroupHugs");

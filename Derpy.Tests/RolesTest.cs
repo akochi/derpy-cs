@@ -1,4 +1,3 @@
-using Derpy.Services;
 using Discord;
 using Moq;
 using Norn.Test;
@@ -6,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Derpy.Result;
 
-namespace Derpy.Tests.Services
+namespace Derpy.Tests
 {
     public class RolesTest
     {
         private readonly TestScheduler _scheduler = new TestScheduler();
-        private readonly Roles _service;
+        private readonly Roles.Service _service;
 
         const int USER_ID = 42;
         const int UNICORN_ROLE_ID = 1;
@@ -28,7 +28,7 @@ namespace Derpy.Tests.Services
 
         public RolesTest()
         {
-            _service = new Roles(_scheduler);
+            _service = new Roles.Service(_scheduler);
 
             _user.Setup(user => user.Id).Returns(USER_ID);
             _user.Setup(user => user.Username).Returns("Moq");
@@ -54,10 +54,9 @@ namespace Derpy.Tests.Services
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi");
 
             _guildUser.Verify(user => user.AddRoleAsync(_pegasusRole.Object, It.IsAny<RequestOptions>()));
-            Assert.True(result.IsSuccess);
             Assert.Equal("You are now part of the Pegasi, Guest!", result.Message);
         }
 
@@ -66,10 +65,9 @@ namespace Derpy.Tests.Services
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { PEGASUS_ROLE_ID });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi");
 
             _guildUser.Verify(user => user.AddRoleAsync(It.IsAny<IRole>(), It.IsAny<RequestOptions>()), Times.Never);
-            Assert.False(result.IsSuccess);
             Assert.Equal("You already are a Pegasi!", result.Message);
         }
 
@@ -78,11 +76,10 @@ namespace Derpy.Tests.Services
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { UNICORN_ROLE_ID });
 
-            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi") as CommandResult;
+            var result = await _service.SetRole(_guild.Object, _user.Object, "Pegasi");
 
             _guildUser.Verify(user => user.RemoveRoleAsync(_unicornRole.Object, It.IsAny<RequestOptions>()));
             _guildUser.Verify(user => user.AddRoleAsync(_pegasusRole.Object, It.IsAny<RequestOptions>()));
-            Assert.True(result.IsSuccess);
             Assert.Equal("You are now part of the Pegasi, Guest!", result.Message);
         }
 
@@ -94,10 +91,9 @@ namespace Derpy.Tests.Services
             miscRole.Setup(guild => guild.Name).Returns("Misc");
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { UNICORN_ROLE_ID, 99 });
 
-            var result = await _service.ClearRoles(_guild.Object, _user.Object) as CommandResult;
+            var result = await _service.ClearRoles(_guild.Object, _user.Object);
 
             _guildUser.Verify(user => user.RemoveRolesAsync(new IRole[] { _unicornRole.Object }, It.IsAny<RequestOptions>()));
-            Assert.True(result.IsSuccess);
             Assert.Equal("Here you go, just as new!", result.Message);
         }
 
@@ -106,10 +102,9 @@ namespace Derpy.Tests.Services
         {
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.ClearRoles(_guild.Object, _user.Object) as CommandResult;
+            var result = await _service.ClearRoles(_guild.Object, _user.Object);
 
             _guildUser.Verify(user => user.RemoveRolesAsync(It.IsAny<IEnumerable<IRole>>(), It.IsAny<RequestOptions>()), Times.Never);
-            Assert.False(result.IsSuccess);
             Assert.Equal("Mh, I found nothing to remove...", result.Message);
         }
         #endregion
@@ -123,11 +118,10 @@ namespace Derpy.Tests.Services
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
             var message = PrepareMessage(channel);
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object);
             Mock.Verify(channel);
 
-            Assert.True(result.IsSuccess);
-            Assert.Null(result.Message);
+            Assert.IsType<Success>(result);
 
             message.Setup(message => message.ModifyAsync(It.IsAny<Action<MessageProperties>>(), null))
                 .Callback((Action<MessageProperties> callback, RequestOptions _) =>
@@ -152,9 +146,8 @@ namespace Derpy.Tests.Services
             var channel = new Mock<IMessageChannel>();
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { NSFW_ROLE_ID });
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object);
 
-            Assert.False(result.IsSuccess);
             Assert.Equal("You have already opted in the adult channels!", result.Message);
         }
 
@@ -166,12 +159,10 @@ namespace Derpy.Tests.Services
 
             _guildUser.Setup(user => user.RoleIds).Returns(new ulong[] { });
 
-            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
-            Assert.True(result.IsSuccess);
+            var result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object);
             Mock.Verify(message);
 
-            result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object) as CommandResult;
-            Assert.True(result.IsSuccess);
+            result = await _service.EnableNsfw(_guild.Object, channel.Object, _user.Object);
             Assert.Equal("You have been allowed into the adult channels!", result.Message);
 
             _guildUser.Verify(user => user.AddRoleAsync(_nsfwRole.Object, null));

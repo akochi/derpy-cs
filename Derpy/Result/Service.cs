@@ -3,20 +3,22 @@ using Sentry;
 using Serilog;
 using System.Threading.Tasks;
 
-namespace Derpy.Services
+namespace Derpy.Result
 {
-    class Result
+    using IDiscordResult = Discord.Commands.IResult;
+
+    class Service
     {
-        public Result(CommandService commands)
+        public Service(CommandService commands)
         {
             commands.CommandExecuted += CommandExecuted;
         }
 
-        private async Task CommandExecuted(Discord.Optional<CommandInfo> command, ICommandContext context, IResult result)
+        private async Task CommandExecuted(Discord.Optional<CommandInfo> command, ICommandContext context, IDiscordResult result)
         {
-            if (result is CommandResult commandResult)
+            if (result is DiscordResult commandResult)
             {
-                await HandleResult(commandResult, context);
+                await HandleResult(commandResult.Inner, context);
                 return;
             }
 
@@ -43,7 +45,7 @@ namespace Derpy.Services
             }
         }
 
-        private async Task HandleResult(CommandResult result, ICommandContext context)
+        private async Task HandleResult(IResult result, ICommandContext context)
         {
             if (!string.IsNullOrEmpty(result.Message))
             {

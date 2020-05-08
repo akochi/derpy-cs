@@ -2,15 +2,15 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 
-namespace Derpy.Commands
+namespace Derpy.Karma
 {
     [Group("karma")]
     [Summary("Show and manage people's karma")]
     public class KarmaModule : ModuleBase<SocketCommandContext>
     {
-        private readonly Services.Karma _service;
+        private readonly Service _service;
 
-        public KarmaModule(Services.Karma service) => _service = service;
+        public KarmaModule(Service service) => _service = service;
 
         [Command]
         [Alias("show")]
@@ -25,6 +25,7 @@ namespace Derpy.Commands
         }
 
         [Command("add")]
+        [RequireOwner]
         [Summary("Give 1 point of karma to an user")]
         public Task AddKarma(SocketUser user)
         {
@@ -34,11 +35,10 @@ namespace Derpy.Commands
 
         [Command("stats")]
         [Summary("Shows all time stats")]
-        public async Task<RuntimeResult> GetStats()
+        public async Task GetStats()
         {
             var (userCount, karmaTotal) = await _service.GetStats();
-
-            return CommandResult.FromSuccess($"There are {userCount} users with karma for a total of {karmaTotal} karma.");
+            await ReplyAsync($"There are {userCount} users with karma for a total of {karmaTotal} karma.");
         }
     }
 }

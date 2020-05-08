@@ -8,16 +8,9 @@ namespace Derpy.Tests
     public class DrawalongTest
     {
         private readonly TestScheduler _scheduler = new TestScheduler();
-        private readonly Drawalong _drawalong;
+        private readonly Drawalong.Service _drawalong;
 
-        public DrawalongTest() => _drawalong = new Drawalong(_scheduler);
-
-        [Fact]
-        public void Test_NotActive()
-        {
-            Assert.False(_drawalong.Active);
-            Assert.False(_drawalong.Running);
-        }
+        public DrawalongTest() => _drawalong = new Drawalong.Service(_scheduler);
 
         [Fact]
         public void Test_CreateDrawalong()
@@ -25,12 +18,9 @@ namespace Derpy.Tests
             var channel = new Mock<ITextChannel>();
             var user = new Mock<IGuildUser>();
 
-            var result = _drawalong.Create(channel.Object, user.Object, "Test");
+            var result = _drawalong.New(channel.Object, user.Object, "Test");
 
-            Assert.True(result.IsSuccess);
             Assert.Equal("Drawalong created! Topic is \"Test\".", result.Message);
-            Assert.True(_drawalong.Active);
-            Assert.False(_drawalong.Running);
         }
 
         [Fact]
@@ -39,11 +29,10 @@ namespace Derpy.Tests
             var channel = new Mock<ITextChannel>();
             var user = new Mock<IGuildUser>();
 
-            var _ = _drawalong.Create(channel.Object, user.Object, "Test");
-            var result = _drawalong.Create(channel.Object, user.Object, "Copycat");
+            var _ = _drawalong.New(channel.Object, user.Object, "Test");
+            var result = _drawalong.New(channel.Object, user.Object, "Copycat");
 
-            Assert.False(result.IsSuccess);
-            Assert.Equal("A drawalong is already running!", result.Message);
+            Assert.Equal("There is already a drawalong active here!", result.Message);
         }
 
         [Fact]
@@ -52,11 +41,9 @@ namespace Derpy.Tests
             var channel = new Mock<IDMChannel>();
             var user = new Mock<IGuildUser>();
 
-            var result = _drawalong.Create(channel.Object, user.Object, "Test");
+            var result = _drawalong.New(channel.Object, user.Object, "Test");
 
-            Assert.False(result.IsSuccess);
             Assert.Equal("You can't run a drawalong here!", result.Message);
-            Assert.False(_drawalong.Running);
         }
 
         [Fact]
@@ -72,12 +59,11 @@ namespace Derpy.Tests
             user2.Setup(user => user.Id).Returns(42);
             user2.Setup(user => user.Nickname).Returns("User");
 
-            _drawalong.Create(channel.Object, user1.Object, "Test");
+            _drawalong.New(channel.Object, user1.Object, "Test");
 
-            var result = _drawalong.Join(user2.Object);
+            var result = _drawalong.Join(channel.Object, user2.Object);
 
-            Assert.False(result.IsSuccess);
-            Assert.Equal("You are already in this drawalong, User!", result.Message);
+            Assert.Equal("You are already on the list, User!", result.Message);
         }
     }
 }
