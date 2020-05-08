@@ -61,6 +61,7 @@ namespace Derpy
                 .AddSingleton<Drawalong.Service>()
                 .AddSingleton<Karma.Service>()
                 .AddSingleton<Roles.Service>()
+                .AddSingleton<Tips.Service>()
                 .BuildServiceProvider();
         }
 

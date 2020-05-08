@@ -17,10 +17,12 @@
 
   <ItemGroup>
     <None Remove="Resources/*" />
+    <None Remove="Tips/tips.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources/*" />
+    <EmbeddedResource Include="Tips/tips.txt" />
   </ItemGroup>
 
   <Target Name="Version" AfterTargets="Build">
