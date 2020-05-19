@@ -32,7 +32,7 @@ namespace Derpy.Drawalong
 
             instance.RemainingTimeNotification += (remaining) =>
             {
-                textChannel.SendMessageAsync($"{remaining} minutes reamining!");
+                textChannel.SendMessageAsync($"{remaining} minutes remaining!");
             };
             instance.Finished += () =>
             {
