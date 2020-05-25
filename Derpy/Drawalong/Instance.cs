@@ -3,6 +3,7 @@ using Norn;
 using System.Collections.Generic;
 using System.Linq;
 using Serilog;
+using System.Timers;
 
 namespace Derpy.Drawalong
 {
@@ -73,15 +74,25 @@ namespace Derpy.Drawalong
 
         private void StartExpirationTimer()
         {
-            _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000, true);
-            _expirationTimer.Elapsed += (sender, args) => Expired();
+            _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000);
+            _expirationTimer.Elapsed += OnElapsed;
             _expirationTimer.Start();
         }
 
         private void StopExpirationTimer()
         {
-            _expirationTimer?.Stop();
+            if (_expirationTimer != null)
+            {
+                _expirationTimer.Stop();
+                _expirationTimer.Elapsed -= OnElapsed;
+            }
             _expirationTimer = null;
+        }
+
+        private void OnElapsed(object sender, ElapsedEventArgs args)
+        {
+            Log.Debug("Called Instance.OnElapsed");
+            Expired();
         }
     }
 }

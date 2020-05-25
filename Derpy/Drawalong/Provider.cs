@@ -30,9 +30,9 @@ namespace Derpy.Drawalong
             return instance;
         }
 
-        public void ClearInstance(ITextChannel channel)
+        public void ClearInstance(ITextChannel channel, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
         {
-            Log.Debug("Clearing instance for {Channel} ({ChannelId}).", channel.Name, channel.Id);
+            Log.Debug("Clearing instance for {Channel} ({ChannelId}) from {Member}.", channel.Name, channel.Id, memberName);
 
             _instances[channel]?.Cancel();
             _instances.Remove(channel);
