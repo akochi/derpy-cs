@@ -2,6 +2,7 @@ using Discord;
 using Norn;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 
 namespace Derpy.Drawalong
 {
@@ -43,6 +44,8 @@ namespace Derpy.Drawalong
             Attendees = new HashSet<IGuildUser>(EntityComparer.Instance);
 
             StartExpirationTimer();
+
+            Log.Debug("Created a Drawalong.Instance instance.");
         }
 
         public void Start()
@@ -51,7 +54,8 @@ namespace Derpy.Drawalong
             _run = new Run(
                 _scheduler,
                 remainingTime => RemainingTimeNotification(remainingTime),
-                () => {
+                () =>
+                {
                     _run = null;
                     StartExpirationTimer();
 
