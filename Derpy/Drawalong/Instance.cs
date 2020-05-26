@@ -92,6 +92,7 @@ namespace Derpy.Drawalong
         private void OnElapsed(object sender, ElapsedEventArgs args)
         {
             Log.Debug("Called Instance.OnElapsed");
+            StopExpirationTimer();
             Expired();
         }
     }
