@@ -64,12 +64,15 @@ namespace Derpy.Drawalong
                 });
         }
 
-        public void Cancel()
+        public void Cancel(bool keepActive = false)
         {
             _run?.Cancel();
             _run = null;
 
-            StartExpirationTimer();
+            if (keepActive)
+            {
+                StartExpirationTimer();
+            }
         }
 
         private void StartExpirationTimer()
