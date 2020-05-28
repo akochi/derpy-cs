@@ -3,6 +3,7 @@ using Discord.Commands;
 
 namespace Derpy.Tips
 {
+    [RequireOwner]
     public class Commands : ModuleBase<SocketCommandContext>
     {
         private Service _service;
