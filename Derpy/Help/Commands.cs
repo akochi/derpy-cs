@@ -73,7 +73,7 @@ namespace Derpy.Help
             {
                 embed.AddField("Modules", string.Join('\n', modules));
             }
-            embed.AddField("Version", assembly.GetName().Version.ToString(3), inline: true);
+            embed.AddField("Version", GetCurrentVersion(assembly), inline: true);
 
             await ReplyAsync("Hello! I am **Derpy**, here to help you!", embed: embed.Build());
         }
@@ -110,6 +110,12 @@ namespace Derpy.Help
             }
 
             await ReplyAsync(embed: embed.Build());
+        }
+
+        private string GetCurrentVersion(Assembly assembly) {
+            var name = assembly.GetName();
+
+            return name.Version.Revision <= 0 ? name.Version.ToString(3) : name.Version.ToString();
         }
     }
 }
