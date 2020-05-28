@@ -58,6 +58,7 @@ namespace Derpy.Drawalong
             ReplyAsync("Too many arguments. Perhaps you were looking for `%da new`?");
 
         [Command("show")]
+        [RequireOwner]
         public Task<RuntimeResult> Show() => DiscordResult.Async(_service.Show(Context.Channel as ITextChannel, Author));
     }
 }

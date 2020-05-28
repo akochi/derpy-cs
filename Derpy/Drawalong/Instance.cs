@@ -2,7 +2,6 @@ using Discord;
 using Norn;
 using System.Collections.Generic;
 using System.Linq;
-using Serilog;
 using System.Timers;
 
 namespace Derpy.Drawalong
@@ -26,14 +25,14 @@ namespace Derpy.Drawalong
         #endregion
 
         #region Events
-        public delegate void ExpirationEventHandler();
-        public event ExpirationEventHandler Expired;
+        public delegate void ExpirationHandler();
+        public event ExpirationHandler Expiration;
 
-        public delegate void RemainingTimeHandler(uint remainingTime);
-        public event RemainingTimeHandler RemainingTimeNotification;
+        public delegate void TimeRemainingHandler(uint remainingTime);
+        public event TimeRemainingHandler TimeRemaining;
 
-        public delegate void FinishEvent();
-        public event FinishEvent Finished;
+        public delegate void FinishedHandler();
+        public event FinishedHandler Finished;
         #endregion
 
         public string Mentions =>
@@ -45,23 +44,20 @@ namespace Derpy.Drawalong
             Attendees = new HashSet<IGuildUser>(EntityComparer.Instance);
 
             StartExpirationTimer();
-
-            Log.Debug("Created a Drawalong.Instance instance.");
         }
 
         public void Start()
         {
             StopExpirationTimer();
-            _run = new Run(
-                _scheduler,
-                remainingTime => RemainingTimeNotification(remainingTime),
-                () =>
-                {
-                    _run = null;
-                    StartExpirationTimer();
 
-                    Finished();
-                });
+            _run = new Run(_scheduler);
+            _run.TimeRemaining += TimeRemaining;
+            _run.Expiration += () => {
+                _run = null;
+                StartExpirationTimer();
+
+                Finished();
+            };
         }
 
         public void Cancel(bool keepActive = false)
@@ -78,7 +74,7 @@ namespace Derpy.Drawalong
         private void StartExpirationTimer()
         {
             _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000);
-            _expirationTimer.Elapsed += OnElapsed;
+            _expirationTimer.Elapsed += OnExpiration;
             _expirationTimer.Start();
         }
 
@@ -87,16 +83,15 @@ namespace Derpy.Drawalong
             if (_expirationTimer != null)
             {
                 _expirationTimer.Stop();
-                _expirationTimer.Elapsed -= OnElapsed;
+                _expirationTimer.Elapsed -= OnExpiration;
             }
             _expirationTimer = null;
         }
 
-        private void OnElapsed(object sender, ElapsedEventArgs args)
+        private void OnExpiration(object sender, ElapsedEventArgs args)
         {
-            Log.Debug("Called Instance.OnElapsed");
             StopExpirationTimer();
-            Expired();
+            Expiration();
         }
     }
 }

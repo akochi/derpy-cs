@@ -15,8 +15,6 @@ namespace Derpy.Drawalong
         {
             _provider = new Provider();
             _scheduler = scheduler;
-
-            Log.Debug("Created a Drawalong.Service instance.");
         }
 
         private readonly IResult NO_DRAWALONG = new Reply("There is no drawalong active here!", false);
@@ -34,7 +32,7 @@ namespace Derpy.Drawalong
             instance.Topic = topic;
             instance.Attendees.Add(initialUser);
 
-            instance.RemainingTimeNotification += (remaining) =>
+            instance.TimeRemaining += (remaining) =>
             {
                 textChannel.SendMessageAsync($"{remaining} minutes remaining!");
             };

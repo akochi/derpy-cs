@@ -5,6 +5,12 @@ namespace Derpy.Drawalong
 {
     public class Run
     {
+        #region Events
+        public event Instance.TimeRemainingHandler TimeRemaining;
+
+        public event Instance.ExpirationHandler Expiration;
+        #endregion
+
         private readonly ITimer[] _timers;
 
         private ITimer CreateTimer(IScheduler scheduler, uint timeout, Action action)
@@ -16,12 +22,12 @@ namespace Derpy.Drawalong
             return timer;
         }
 
-        public Run(IScheduler scheduler, Action<uint> notifyTimeRemaining, Action notifyFinished)
+        public Run(IScheduler scheduler)
         {
             _timers = new ITimer[] {
-                CreateTimer(scheduler, 20, () => notifyTimeRemaining(10)),
-                CreateTimer(scheduler, 25, () => notifyTimeRemaining(5)),
-                CreateTimer(scheduler, 30, () => notifyFinished())
+                CreateTimer(scheduler, 20, () => TimeRemaining(10)),
+                CreateTimer(scheduler, 25, () => TimeRemaining(5)),
+                CreateTimer(scheduler, 30, () => Expiration())
             };
         }
 

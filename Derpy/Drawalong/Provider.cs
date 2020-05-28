@@ -25,8 +25,7 @@ namespace Derpy.Drawalong
             var instance = new Instance(scheduler);
             _instances[channel] = instance;
 
-            instance.Expired += () => ClearInstance(channel);
-
+            instance.Expiration += () => ClearInstance(channel);
             return instance;
         }
 
