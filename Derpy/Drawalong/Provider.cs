@@ -33,7 +33,7 @@ namespace Derpy.Drawalong
         {
             Log.Debug("Clearing instance for {Channel} ({ChannelId}) from {Member}.", channel.Name, channel.Id, memberName);
 
-            _instances[channel]?.Cancel();
+            _instances[channel]?.Clear();
             _instances.Remove(channel);
         }
     }
