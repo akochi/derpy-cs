@@ -38,7 +38,7 @@ namespace Derpy.Drawalong
             };
             instance.Finished += () =>
             {
-                textChannel.SendMessageAsync($"{instance.Mentions}\nFinished! Everyone drop their pencils!");
+                textChannel.SendMessageAsync($"{instance.Mentions()}\nFinished! Everyone drop their pencils!");
             };
 
             return new Reply($"Drawalong created! Topic is \"{instance.Topic}\".");
@@ -84,7 +84,7 @@ namespace Derpy.Drawalong
 
         public IResult Notify(ITextChannel channel) =>
             Check(channel, true)
-            .Then(() => new Reply($"The drawalong is about to start! Are you ready?\n{GetInstance(channel).Mentions}"));
+            .Then(() => new Reply($"The drawalong is about to start! Are you ready?\n{GetInstance(channel).Mentions()}"));
 
         public IResult Start(ITextChannel channel) =>
             Check(channel, true)
@@ -92,7 +92,7 @@ namespace Derpy.Drawalong
             {
                 var instance = GetInstance(channel);
                 instance.Start();
-                return new Reply($"{instance.Mentions}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
+                return new Reply($"{instance.Mentions()}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
             });
 
         public IResult ShowTopic(ITextChannel channel) =>

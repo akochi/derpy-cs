@@ -35,7 +35,7 @@ namespace Derpy.Drawalong
         public event FinishedHandler Finished;
         #endregion
 
-        public string Mentions =>
+        public string Mentions() =>
             string.Join(", ", from attendee in Attendees select attendee.Mention);
 
         public Instance(IScheduler scheduler)
