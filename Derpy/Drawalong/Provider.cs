@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Discord;
 using Norn;
+using Serilog;
 
 namespace Derpy.Drawalong
 {
@@ -11,6 +12,7 @@ namespace Derpy.Drawalong
         public Provider()
         {
             _instances = new Dictionary<ITextChannel, Instance>(EntityComparer.Instance);
+            Log.Debug("Created a Drawalong.Provider instance.");
         }
 
         public Instance GetInstance(ITextChannel channel) => _instances.GetValueOrDefault(channel);
@@ -23,14 +25,15 @@ namespace Derpy.Drawalong
             var instance = new Instance(scheduler);
             _instances[channel] = instance;
 
-            instance.Expired += () => ClearInstance(channel);
-
+            instance.Expiration += () => ClearInstance(channel);
             return instance;
         }
 
-        public void ClearInstance(ITextChannel channel)
+        public void ClearInstance(ITextChannel channel, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
         {
-            _instances[channel]?.Cancel();
+            Log.Debug("Clearing instance for {Channel} ({ChannelId}) from {Member}.", channel.Name, channel.Id, memberName);
+
+            _instances[channel]?.Clear();
             _instances.Remove(channel);
         }
     }

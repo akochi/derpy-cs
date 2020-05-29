@@ -33,6 +33,7 @@ namespace Derpy
         {
             var log = new LoggerConfiguration()
                 .WriteTo.Console()
+                .MinimumLevel.Debug()
                 .CreateLogger();
             Log.Logger = log;
 
@@ -113,6 +114,7 @@ namespace Derpy
                         scope.SetExtra("message", message.Content);
                     });
 
+                    Log.Debug("Executing command {Command}", message.Content);
                     await _commands.ExecuteAsync(context, argPos, _services);
                 }
             }

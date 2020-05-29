@@ -1,6 +1,8 @@
 ﻿using Derpy.Result;
 using Discord;
 using Norn;
+using Serilog;
+using System.Linq;
 
 namespace Derpy.Drawalong
 {
@@ -30,13 +32,13 @@ namespace Derpy.Drawalong
             instance.Topic = topic;
             instance.Attendees.Add(initialUser);
 
-            instance.RemainingTimeNotification += (remaining) =>
+            instance.TimeRemaining += (remaining) =>
             {
                 textChannel.SendMessageAsync($"{remaining} minutes remaining!");
             };
             instance.Finished += () =>
             {
-                textChannel.SendMessageAsync($"{instance.Mentions}\nFinished! Everyone drop their pencils!");
+                textChannel.SendMessageAsync($"{instance.Mentions()}\nFinished! Everyone drop their pencils!");
             };
 
             return new Reply($"Drawalong created! Topic is \"{instance.Topic}\".");
@@ -44,7 +46,8 @@ namespace Derpy.Drawalong
 
         public IResult Join(ITextChannel channel, IGuildUser user) =>
             Check(channel)
-            .Then(() => {
+            .Then(() =>
+            {
                 var instance = _provider.GetInstance(channel);
 
                 if (!instance.Attendees.Add(user))
@@ -57,7 +60,8 @@ namespace Derpy.Drawalong
 
         public IResult Leave(ITextChannel channel, IGuildUser user) =>
             Check(channel)
-            .Then(() => {
+            .Then(() =>
+            {
                 var instance = GetInstance(channel);
 
                 if (!instance.Attendees.Remove(user))
@@ -80,14 +84,15 @@ namespace Derpy.Drawalong
 
         public IResult Notify(ITextChannel channel) =>
             Check(channel, true)
-            .Then(() => new Reply($"The drawalong is about to start! Are you ready?\n{GetInstance(channel).Mentions}"));
+            .Then(() => new Reply($"The drawalong is about to start! Are you ready?\n{GetInstance(channel).Mentions()}"));
 
         public IResult Start(ITextChannel channel) =>
             Check(channel, true)
-            .Then(() => {
+            .Then(() =>
+            {
                 var instance = GetInstance(channel);
                 instance.Start();
-                return new Reply($"{instance.Mentions}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
+                return new Reply($"{instance.Mentions()}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
             });
 
         public IResult ShowTopic(ITextChannel channel) =>
@@ -107,16 +112,42 @@ namespace Derpy.Drawalong
             .Then(() =>
                 {
                     _provider.ClearInstance(channel);
-                    return new Reply("Drawalong has been cleared! See you next time, y'all! :pencil:");
+                    return new Reply("Drawalong has been cleared! See you next time, y'all! :pencil2:");
                 });
 
         private IResult Check(ITextChannel channel, bool forbidRunning = false)
         {
+            Log.Debug("Looking for a valid drawalong in {Channel} ({ChannelId})", channel.Name, channel.Id);
+
             var instance = _provider.GetInstance(channel);
             if (instance == null) { return NO_DRAWALONG; }
             if (forbidRunning && instance.Running) { return WRONG_TIME; }
 
             return new Success();
+        }
+
+        public IResult Show(ITextChannel channel, IGuildUser user)
+        {
+            var instance = _provider.GetInstance(channel);
+            string message =
+                $"This channel is `{channel.Guild.Name}#{channel.Name}` (`{channel.Id}`)\n" +
+                $"Calling user is `{user.Username}#{user.Discriminator}` (`{user.Id}`).\n"
+                ;
+
+            if (instance == null)
+            {
+                message += "No drawalong found for the current channel.";
+                return new Reply(message);
+            }
+
+            message += $"Running: {(instance.Running ? "Yes" : "No")}\n\n";
+            message += string.Join(
+                "\n",
+                from attendee in instance.Attendees
+                select $"Attendee: `{attendee.Username}#{attendee.Discriminator}` (`{attendee.Id}`)"
+            );
+
+            return new Reply(message);
         }
     }
 }

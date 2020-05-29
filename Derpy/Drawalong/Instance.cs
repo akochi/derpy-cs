@@ -2,6 +2,7 @@ using Discord;
 using Norn;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 
 namespace Derpy.Drawalong
 {
@@ -24,17 +25,17 @@ namespace Derpy.Drawalong
         #endregion
 
         #region Events
-        public delegate void ExpirationEventHandler();
-        public event ExpirationEventHandler Expired;
+        public delegate void ExpirationHandler();
+        public event ExpirationHandler Expiration;
 
-        public delegate void RemainingTimeHandler(uint remainingTime);
-        public event RemainingTimeHandler RemainingTimeNotification;
+        public delegate void TimeRemainingHandler(uint remainingTime);
+        public event TimeRemainingHandler TimeRemaining;
 
-        public delegate void FinishEvent();
-        public event FinishEvent Finished;
+        public delegate void FinishedHandler();
+        public event FinishedHandler Finished;
         #endregion
 
-        public string Mentions =>
+        public string Mentions() =>
             string.Join(", ", from attendee in Attendees select attendee.Mention);
 
         public Instance(IScheduler scheduler)
@@ -48,36 +49,46 @@ namespace Derpy.Drawalong
         public void Start()
         {
             StopExpirationTimer();
-            _run = new Run(
-                _scheduler,
-                remainingTime => RemainingTimeNotification(remainingTime),
-                () => {
-                    _run = null;
-                    StartExpirationTimer();
 
-                    Finished();
-                });
+            _run = new Run(_scheduler);
+            _run.TimeRemaining += TimeRemaining;
+            _run.Expiration += () => {
+                _run = null;
+                StartExpirationTimer();
+
+                Finished();
+            };
         }
 
-        public void Cancel()
+        public void Clear()
         {
             _run?.Cancel();
             _run = null;
 
-            StartExpirationTimer();
+            StopExpirationTimer();
         }
 
         private void StartExpirationTimer()
         {
-            _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000, true);
-            _expirationTimer.Elapsed += (sender, args) => Expired();
+            _expirationTimer = _scheduler.CreateTimer(DEFAULT_TIMEOUT * 60 * 1000);
+            _expirationTimer.Elapsed += OnExpiration;
             _expirationTimer.Start();
         }
 
         private void StopExpirationTimer()
         {
-            _expirationTimer?.Stop();
+            if (_expirationTimer != null)
+            {
+                _expirationTimer.Stop();
+                _expirationTimer.Elapsed -= OnExpiration;
+            }
             _expirationTimer = null;
+        }
+
+        private void OnExpiration(object sender, ElapsedEventArgs args)
+        {
+            StopExpirationTimer();
+            Expiration();
         }
     }
 }

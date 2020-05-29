@@ -65,5 +65,22 @@ namespace Derpy.Tests
 
             Assert.Equal("You are already on the list, User!", result.Message);
         }
+
+        [Fact]
+        public void Test_ComparesChannelsWithCacheMiss()
+        {
+            var channel = new Mock<ITextChannel>();
+            var channel_clone = new Mock<ITextChannel>();
+            var user = new Mock<IGuildUser>();
+
+            channel.Setup(channel => channel.Id).Returns(1337);
+            channel_clone.Setup(channel => channel.Id).Returns(1337);
+
+            var result1 = _drawalong.New(channel.Object, user.Object, "Test");
+            Assert.True(result1.Successful);
+
+            var result2 = _drawalong.New(channel_clone.Object, user.Object, "Copycat");
+            Assert.False(result2.Successful);
+        }
     }
 }

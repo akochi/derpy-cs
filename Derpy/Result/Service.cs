@@ -47,6 +47,8 @@ namespace Derpy.Result
 
         private async Task HandleResult(IResult result, ICommandContext context)
         {
+            Log.Debug("Command {Command} resulted in {@Result}", context.Message, result);
+
             if (!string.IsNullOrEmpty(result.Message))
             {
                 await context.Channel.SendMessageAsync(result.Message);
