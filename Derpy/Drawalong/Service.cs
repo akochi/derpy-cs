@@ -2,6 +2,7 @@
 using Discord;
 using Norn;
 using Serilog;
+using System;
 using System.Linq;
 
 namespace Derpy.Drawalong
@@ -114,7 +115,13 @@ namespace Derpy.Drawalong
                 var reply = $"Current drawalong is {GetInstance(channel).Duration} minutes long.";
                 if (instance.Running)
                 {
-                    reply += $" End time is {instance.EndTimeString}.";
+                    var timeRemaining = instance.EndTime.Value - DateTime.Now;
+
+                    if (timeRemaining.Minutes > 0)
+                    {
+                        reply += $" {timeRemaining.Minutes} minutes and";
+                    }
+                    reply += $" {timeRemaining.Seconds} seconds remaining, end time is {instance.EndTimeString}.";
                 }
 
                 return new Reply(reply);

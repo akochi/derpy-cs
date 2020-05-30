@@ -29,8 +29,13 @@ namespace Derpy.Drawalong
         public Run(IScheduler scheduler, uint duration)
         {
             _duration = duration;
+
             var endTime = DateTime.Now.AddMinutes(_duration);
-            endTime = endTime.AddMilliseconds(-endTime.Millisecond).AddSeconds(-endTime.Second);
+            endTime = endTime.AddMilliseconds(-endTime.Millisecond);
+            if (_duration > 5)
+            {
+                endTime = endTime.AddSeconds(-endTime.Second);
+            }
             var adjustedDuration = endTime - DateTime.Now;
             EndTime = endTime;
 

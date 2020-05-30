@@ -14,6 +14,7 @@ namespace Derpy.Drawalong
 
         #region Properties
         public string Topic { get; set; }
+        public DateTime? EndTime => _run?.EndTime;
         public string EndTimeString => Running ? _run.EndTimeString : null;
 
         private uint _duration = DEFAULT_DURATION;
