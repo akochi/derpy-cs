@@ -12,7 +12,6 @@ namespace Derpy.Drawalong
         public Provider()
         {
             _instances = new Dictionary<ITextChannel, Instance>(EntityComparer.Instance);
-            Log.Debug("Created a Drawalong.Provider instance.");
         }
 
         public Instance GetInstance(ITextChannel channel) => _instances.GetValueOrDefault(channel);
