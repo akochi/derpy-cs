@@ -16,7 +16,7 @@ namespace Derpy
     class Program
     {
         private readonly CommandService _commands = new CommandService();
-        private readonly ServiceProvider _services = LoadDependencies();
+        private readonly ServiceProvider _services;
         private CancellationTokenSource _cancellationSource;
 
         private DiscordSocketClient Client => _services.GetRequiredService<DiscordSocketClient>();
@@ -31,6 +31,8 @@ namespace Derpy
 
         private Program()
         {
+            _services = LoadDependencies();
+
             var log = new LoggerConfiguration()
                 .WriteTo.Console()
                 .MinimumLevel.Debug()
@@ -50,15 +52,17 @@ namespace Derpy
             Client.Disconnected += HandleDisconnection;
         }
 
-        private static ServiceProvider LoadDependencies()
+        private ServiceProvider LoadDependencies()
         {
             var redisConnection = ConnectionMultiplexer.Connect("localhost");
 
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
+                .AddSingleton(_commands)
                 .AddSingleton(redisConnection)
                 .AddSingleton(redisConnection.GetDatabase())
                 .AddSingleton<IScheduler>(new Scheduler())
+                .AddSingleton<Help.Service>()
                 .AddSingleton<Drawalong.Service>()
                 .AddSingleton<Karma.Service>()
                 .AddSingleton<Roles.Service>()

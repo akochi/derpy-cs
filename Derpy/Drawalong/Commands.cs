@@ -10,9 +10,14 @@ namespace Derpy.Drawalong
     public class Commands : ModuleBase<SocketCommandContext>
     {
         private readonly Service _service;
+        private readonly Help.Service _helpService;
         private IGuildUser Author => Context.Guild.GetUser(Context.Message.Author.Id);
 
-        public Commands(Service service) => _service = service;
+        public Commands(Service service, Help.Service helpService)
+        {
+            _service = service;
+            _helpService = helpService;
+        }
 
         [Command("new")]
         [Summary("Creates a new drawalong")]
@@ -68,5 +73,8 @@ namespace Derpy.Drawalong
         [Command("show")]
         [RequireOwner]
         public Task<RuntimeResult> Show() => DiscordResult.Async(_service.Show(Context.Channel as ITextChannel, Author));
+
+        [Command("help")]
+        public async Task<RuntimeResult> ShowHelp() => new DiscordResult(await _helpService.ShowModuleHelp(Context.Channel as ITextChannel, "da"));
     }
 }
