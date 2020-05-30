@@ -21,7 +21,7 @@ namespace Derpy.Hugs
             var stream = assembly.GetManifestResourceStream($"Derpy.Resources.{resourceName}.txt");
             using var reader = new StreamReader(stream);
 
-            return reader.Lines().ToArray();
+            return reader.Lines().Select(line => line.Replace("\\n", "\n")).ToArray();
         }
 
         [Command]
