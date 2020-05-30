@@ -34,7 +34,7 @@ namespace Derpy.Drawalong
 
             instance.TimeRemaining += (remaining) =>
             {
-                textChannel.SendMessageAsync($"{remaining} minutes remaining!");
+                textChannel.SendMessageAsync($"{remaining} minutes remaining! End time is {instance.EndTimeString}.");
             };
             instance.Finished += () =>
             {
@@ -92,7 +92,7 @@ namespace Derpy.Drawalong
             {
                 var instance = GetInstance(channel);
                 instance.Start();
-                return new Reply($"{instance.Mentions()}\n**Drawalong has started!** Topic is\"{instance.Topic}\". Quick, to your pencils!");
+                return new Reply($"{instance.Mentions()}\n**Drawalong has started!** Topic is\"{instance.Topic}\". You have {instance.Duration} minutes, end time is {instance.EndTimeString}. Quick, to your pencils!");
             });
 
         public IResult ShowTopic(ITextChannel channel) =>
@@ -106,6 +106,31 @@ namespace Derpy.Drawalong
                     GetInstance(channel).Topic = topic;
                     return new Reply($"Got it! New topic is **{topic}**, everyone!");
                 });
+
+        public IResult ShowDuration(ITextChannel channel) =>
+            Check(channel)
+            .Then(() => {
+                var instance = GetInstance(channel);
+                var reply = $"Current drawalong is {GetInstance(channel).Duration} minutes long.";
+                if (instance.Running)
+                {
+                    reply += $" End time is {instance.EndTimeString}.";
+                }
+
+                return new Reply(reply);
+            });
+
+        public IResult SetDuration(ITextChannel channel, uint duration) =>
+            Check(channel, true)
+            .Then(() => {
+                if (duration == 0 || duration > 60)
+                {
+                    return new Reply("This drawalong would be either too short or too long!", false);
+                }
+
+                GetInstance(channel).Duration = duration;
+                return new Reply($"New duration is set to {duration} minutes.");
+            });
 
         public IResult Clear(ITextChannel channel) =>
             Check(channel, true)

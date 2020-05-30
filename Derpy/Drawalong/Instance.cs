@@ -1,5 +1,6 @@
 using Discord;
 using Norn;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
@@ -8,10 +9,24 @@ namespace Derpy.Drawalong
 {
     public class Instance
     {
+        private const uint DEFAULT_DURATION = 30;
         private const uint DEFAULT_TIMEOUT = 120;
 
         #region Properties
         public string Topic { get; set; }
+        public string EndTimeString => Running ? _run.EndTimeString : null;
+
+        private uint _duration = DEFAULT_DURATION;
+        public uint Duration {
+            get => _duration;
+            set {
+                if (value == 0 || value > 60) { throw new ArgumentOutOfRangeException("Duration"); }
+                if (Running) { throw new InvalidOperationException("Duration is not changeable on a running drawalong"); }
+
+                _duration = value;
+            }
+        }
+
         public readonly HashSet<IGuildUser> Attendees;
 
         private readonly IScheduler _scheduler;
@@ -50,7 +65,7 @@ namespace Derpy.Drawalong
         {
             StopExpirationTimer();
 
-            _run = new Run(_scheduler);
+            _run = new Run(_scheduler, _duration);
             _run.TimeRemaining += TimeRemaining;
             _run.Expiration += () => {
                 _run = null;

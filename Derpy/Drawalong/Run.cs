@@ -1,5 +1,6 @@
 using Norn;
 using System;
+using System.Linq;
 
 namespace Derpy.Drawalong
 {
@@ -12,23 +13,41 @@ namespace Derpy.Drawalong
         #endregion
 
         private readonly ITimer[] _timers;
+        private readonly uint _duration;
+        public readonly DateTime EndTime;
+        public string EndTimeString => $"xx:{EndTime.Minute:00}";
 
-        private ITimer CreateTimer(IScheduler scheduler, uint timeout, Action action)
+        private ITimer CreateTimer(IScheduler scheduler, double timeout, Action action)
         {
-            var timer = scheduler.CreateTimer(timeout * 1000 * 60);
+            var timer = scheduler.CreateTimer(timeout);
             timer.Elapsed += (source, args) => action.Invoke();
             timer.AutoReset = false;
             timer.Start();
             return timer;
         }
 
-        public Run(IScheduler scheduler)
+        public Run(IScheduler scheduler, uint duration)
         {
-            _timers = new ITimer[] {
-                CreateTimer(scheduler, 20, () => TimeRemaining(10)),
-                CreateTimer(scheduler, 25, () => TimeRemaining(5)),
-                CreateTimer(scheduler, 30, () => Expiration())
-            };
+            _duration = duration;
+            var endTime = DateTime.Now.AddMinutes(_duration);
+            endTime = endTime.AddMilliseconds(-endTime.Millisecond).AddSeconds(-endTime.Second);
+            var adjustedDuration = endTime - DateTime.Now;
+            EndTime = endTime;
+
+            _timers = (
+                from remaining in new uint[] { 10, 5 }
+                where remaining < _duration
+                select CreateTimer(
+                    scheduler,
+                    adjustedDuration.Subtract(TimeSpan.FromMinutes(remaining)).TotalMilliseconds,
+                    () => TimeRemaining(remaining)
+                )
+            )
+                .Concat(new ITimer[]
+                {
+                    CreateTimer(scheduler, adjustedDuration.TotalMilliseconds, () => Expiration())
+                })
+                .ToArray();            
         }
 
         public void Cancel()

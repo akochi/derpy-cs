@@ -44,6 +44,14 @@ namespace Derpy.Drawalong
         public Task<RuntimeResult> SetTopic([Remainder] string newTopic) =>
             DiscordResult.Async(_service.SetTopic(Context.Channel as ITextChannel, newTopic));
 
+        [Command("duration")]
+        [Summary("Shows or changes duration for a drawalong")]
+        public Task<RuntimeResult> GetDuration() => DiscordResult.Async(_service.ShowDuration(Context.Channel as ITextChannel));
+
+        [Command("duration")]
+        public Task<RuntimeResult> SetDuration(uint duration) =>
+            DiscordResult.Async(_service.SetDuration(Context.Channel as ITextChannel, duration));
+
         [Command("notify")]
         [Summary("Warns that the drawalong is about to start (use before `%da start`)")]
         public Task<RuntimeResult> Notify() => DiscordResult.Async(_service.Notify(Context.Channel as ITextChannel));
