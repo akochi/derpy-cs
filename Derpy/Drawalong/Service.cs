@@ -1,4 +1,4 @@
-﻿using Derpy.Result;
+using Derpy.Result;
 using Discord;
 using Norn;
 using Serilog;
