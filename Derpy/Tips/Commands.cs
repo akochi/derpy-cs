@@ -6,7 +6,7 @@ namespace Derpy.Tips
     [RequireOwner]
     public class Commands : ModuleBase<SocketCommandContext>
     {
-        private Service _service;
+        private readonly Service _service;
 
         public Commands(Service service) => _service = service;
 

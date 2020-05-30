@@ -7,7 +7,7 @@ namespace Derpy.Drawalong
 {
     public class Provider
     {
-        private Dictionary<ITextChannel, Instance> _instances;
+        private readonly Dictionary<ITextChannel, Instance> _instances;
 
         public Provider()
         {

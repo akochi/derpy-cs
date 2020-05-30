@@ -9,8 +9,8 @@ namespace Derpy.Drawalong
 {
     public class Service
     {
-        private Provider _provider;
-        private IScheduler _scheduler;
+        private readonly Provider _provider;
+        private readonly IScheduler _scheduler;
 
         public Service(IScheduler scheduler)
         {
@@ -110,7 +110,8 @@ namespace Derpy.Drawalong
 
         public IResult ShowDuration(ITextChannel channel) =>
             Check(channel)
-            .Then(() => {
+            .Then(() =>
+            {
                 var instance = GetInstance(channel);
                 var reply = $"Current drawalong is {GetInstance(channel).Duration} minutes long.";
                 if (instance.Running)
@@ -129,7 +130,8 @@ namespace Derpy.Drawalong
 
         public IResult SetDuration(ITextChannel channel, uint duration) =>
             Check(channel, true)
-            .Then(() => {
+            .Then(() =>
+            {
                 if (duration == 0 || duration > 60)
                 {
                     return new Reply("This drawalong would be either too short or too long!", false);

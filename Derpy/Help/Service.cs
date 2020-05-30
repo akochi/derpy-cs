@@ -113,7 +113,8 @@ namespace Derpy.Help
             return new Success();
         }
 
-        private string GetCurrentVersion(Assembly assembly) {
+        private string GetCurrentVersion(Assembly assembly)
+        {
             var name = assembly.GetName();
 
             return name.Version.Revision <= 0 ? name.Version.ToString(3) : name.Version.ToString();

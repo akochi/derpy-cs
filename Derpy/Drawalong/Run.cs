@@ -52,7 +52,7 @@ namespace Derpy.Drawalong
                 {
                     CreateTimer(scheduler, adjustedDuration.TotalMilliseconds, () => Expiration())
                 })
-                .ToArray();            
+                .ToArray();
         }
 
         public void Cancel()

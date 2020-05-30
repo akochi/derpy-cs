@@ -5,7 +5,8 @@ using Derpy.Result;
 
 namespace Derpy.Tips
 {
-    public class Service {
+    public class Service
+    {
         readonly string[] _tips;
 
         public Service()

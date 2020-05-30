@@ -18,9 +18,11 @@ namespace Derpy.Drawalong
         public string EndTimeString => Running ? _run.EndTimeString : null;
 
         private uint _duration = DEFAULT_DURATION;
-        public uint Duration {
+        public uint Duration
+        {
             get => _duration;
-            set {
+            set
+            {
                 if (value == 0 || value > 60) { throw new ArgumentOutOfRangeException("Duration"); }
                 if (Running) { throw new InvalidOperationException("Duration is not changeable on a running drawalong"); }
 
@@ -68,7 +70,8 @@ namespace Derpy.Drawalong
 
             _run = new Run(_scheduler, _duration);
             _run.TimeRemaining += TimeRemaining;
-            _run.Expiration += () => {
+            _run.Expiration += () =>
+            {
                 _run = null;
                 StartExpirationTimer();
 
