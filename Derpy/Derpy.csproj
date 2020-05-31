@@ -18,11 +18,13 @@
   <ItemGroup>
     <None Remove="Resources/*" />
     <None Remove="Tips/tips.txt" />
+    <None Remove="Prompt/Prompts.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources/*" />
     <EmbeddedResource Include="Tips/tips.txt" />
+    <EmbeddedResource Include="Prompt/Prompts.xml" />
   </ItemGroup>
 
   <Target Name="Version" AfterTargets="Build">

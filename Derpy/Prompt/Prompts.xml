@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<x:root xmlns:x="http://xml.akochi.eu/derpy">
+    <x:list name="prompt">
+        <x:item><x:placeholder type="character" /> going for groceries</x:item>
+        <x:item><x:placeholder type="character" /> sleeping</x:item>
+        <x:item><x:placeholder type="character" /> visiting <x:placeholder type="location" /></x:item>
+        <x:item><x:placeholder type="character" /> on a date with <x:placeholder type="character" /></x:item>
+        <x:item><x:placeholder type="character" /> writing a friendship letter</x:item>
+        <x:item>A serious portrait of <x:placeholder type="character" /></x:item>
+        <x:item>A silly portrait of <x:placeholder type="character" /></x:item>
+        <x:item><x:placeholder type="character" /> disguising themselves as <x:placeholder type="character" /></x:item>
+        <x:item><x:placeholder type="location" /></x:item>
+        <x:item><x:placeholder type="character" /> wearing a <x:placeholder type="character" /> fursuit</x:item>
+        <x:item><x:placeholder type="character" /> as <x:placeholder type="species" /></x:item>
+        <x:item><x:placeholder type="character" /> disguised as <x:placeholder type="species" /></x:item>
+        <x:item><x:placeholder type="character" /> meeting <x:placeholder type="species" /> version of themselves</x:item>
+        <x:item>Young <x:placeholder type="character" /></x:item>
+        <x:item>Old <x:placeholder type="character" /></x:item>
+        <x:item><x:placeholder type="character" />, but extra fluffy</x:item>
+        <x:item><x:placeholder type="character" /> in the opposite gender</x:item>
+        <x:item><x:placeholder type="character" /> imitating <x:placeholder type="character" /></x:item>
+        <x:item><x:placeholder type="character" /> playing a video game</x:item>
+        <x:item><x:placeholder type="character" /> as a character of the last video game you played</x:item>
+    </x:list>
+    <x:list name="character">
+        <x:item>Twilight Sparkle</x:item>
+        <x:item>Rainbow Dash</x:item>
+        <x:item>Fluttershy</x:item>
+        <x:item>Pinkie Pie</x:item>
+        <x:item>Rarity</x:item>
+        <x:item>Applejack</x:item>
+        <x:item>Princess Celestia</x:item>
+        <x:item>Princess Luna</x:item>
+        <x:item>Princess Cadance</x:item>
+        <x:item>Scootaloo</x:item>
+        <x:item>Sweetie Belle</x:item>
+        <x:item>Applebloom</x:item>
+        <x:item>Derpy Hooves</x:item>
+        <x:item>Spike</x:item>
+        <x:item>your sona/OC</x:item>
+    </x:list>
+    <x:list name="location">
+        <x:item>Golden Oak library</x:item>
+        <x:item>Ponyville</x:item>
+        <x:item>Canterlot</x:item>
+        <x:item>Cloudsdale</x:item>
+        <x:item>the Royal Castle</x:item>
+        <x:item><x:placeholder type="character" />'s house</x:item>
+        <x:item>their home</x:item>
+        <x:item>their work</x:item>
+    </x:list>
+    <x:list name="species">
+        <x:item>a pony</x:item>
+        <x:item>a pegasus</x:item>
+        <x:item>an earth pony</x:item>
+        <x:item>a unicorn</x:item>
+        <x:item>an alicorn</x:item>
+        <x:item>a dragon</x:item>
+        <x:item>a seapony</x:item>
+        <x:item>a cat</x:item>
+        <x:item>a dog</x:item>
+        <x:item>a deer</x:item>
+        <x:item>a wolf</x:item>
+        <x:item>a fox</x:item>
+        <x:item>a changeling</x:item>
+        <x:item>an human</x:item>
+        <x:item>a robot</x:item>
+        <x:item>a griffin</x:item>
+        <x:item>a dinosaur</x:item>
+        <x:item>a bird</x:item>
+        <x:item>a fluffy dragon</x:item>
+    </x:list>
+    <x:list name="message">
+        <x:item>Here is a drawing idea for you!</x:item>
+        <x:item>Looking for ideas? Here is one!</x:item>
+        <x:item>If I were you, I'd probably draw this:</x:item>
+        <x:item>Mmmh… Oh yes, I see… What about…</x:item>
+        <x:item>Maybe something like this?</x:item>
+        <x:item>Don't think you can go wrong with this one:</x:item>
+        <x:item>Take this prompt and make it 20% sillier:</x:item>
+        <x:item>I think this could be something cool:</x:item>
+        <x:item>I'd love it if you could draw this:</x:item>
+    </x:list>
+</x:root>
