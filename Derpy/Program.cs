@@ -7,7 +7,9 @@ using Sentry;
 using Serilog;
 using StackExchange.Redis;
 using System;
+using System.Net.Http;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,6 +70,11 @@ namespace Derpy
                 .AddSingleton<Roles.Service>()
                 .AddSingleton<Tips.Service>()
                 .AddSingleton<Prompt.Service>()
+                .AddSingleton<Palette.Service>()
+                .AddSingleton<HttpMessageHandler>(new HttpClientHandler
+                {
+                    SslProtocols = SslProtocols.Tls12
+                })
                 .BuildServiceProvider();
         }
 
