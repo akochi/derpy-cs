@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Utils\TestResponses\full.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Utils\TestResponses\full.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="Norn.Test" Version="0.1.4" />
