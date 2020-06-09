@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
@@ -63,6 +64,57 @@ namespace Derpy.Tests.Utils
             Assert.Equal(@"https://test-blog.tumblr.com/post/3507845453", urls[0]);
             Assert.Equal(@"https://test-blog.tumblr.com/post/4534708483", urls[1]);
             Assert.Equal(@"https://test-blog.tumblr.com/post/8943561832", urls[2]);
+        }
+
+        [Fact]
+        public async void Test_BadResponse()
+        {
+            _handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync",
+                    TumblrRequestMessageFor("test-blog"),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    Content = new StreamContent(LoadJsonResponse("bad"))
+                });
+
+            var urls = await _client.GetAllPostUrlsAsync("test-blog");
+
+            Assert.Null(urls);
+        }
+
+        [Fact]
+        public async void Test_MalformedResponse()
+        {
+            _handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync",
+                    TumblrRequestMessageFor("test-blog"),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    Content = new StreamContent(LoadJsonResponse("malformed"))
+                });
+
+            var urls = await _client.GetAllPostUrlsAsync("test-blog");
+
+            Assert.Null(urls);
+        }
+
+        [Fact]
+        public async void Test_BadUrlResponse()
+        {
+            _handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync",
+                    TumblrRequestMessageFor("test-blog"),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest
+                });
+
+            var urls = await _client.GetAllPostUrlsAsync("test-blog");
+
+            Assert.Null(urls);
         }
 
         private static Stream LoadJsonResponse(string responseName)
