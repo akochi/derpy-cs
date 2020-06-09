@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Derpy.Utils.Tumblr
 {
@@ -45,15 +46,24 @@ namespace Derpy.Utils.Tumblr
 
             if (!response.IsSuccessStatusCode)
             {
-                // do logging i guess
+                Log.Error("Tumblr posts GET response returned {StatusCode}", response.StatusCode);
                 return null;
             }
 
-            var responseData = await DeserializeResponse<TumblrResponse>(response);
+            TumblrResponse responseData;
+
+            try
+            {
+                responseData = await DeserializeResponse<TumblrResponse>(response);
+            }
+            catch
+            {
+                return null;
+            }
 
             if (responseData.Meta.Status != 200)
             {
-                // do logging i guess
+                Log.Error("Tumblr posts meta field returned {StatusCode}", responseData.Meta.Status);
                 return null;
             }
 
@@ -62,17 +72,17 @@ namespace Derpy.Utils.Tumblr
 
         private static async Task<T> DeserializeResponse<T>(HttpResponseMessage response)
         {
+            var content = await response.Content.ReadAsStringAsync();
+
             try
             {
-                var content = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<T>(content, _serializerOptions);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // do logging i guess
+                Log.Error(e, "Error when deserializing {content}", content);
+                throw;
             }
-
-            return default;
         }
 
         private static Uri BuildUri(string blogIdentifier, string endpoint, Dictionary<string, string> @params = null)
@@ -90,7 +100,7 @@ namespace Derpy.Utils.Tumblr
 
         private static string BuildQuery(Dictionary<string, string> @params)
         {
-            return string.Join("&", @params.Select(_ => $"{_.Key}={WebUtility.UrlEncode(_.Value)}"));
+            return string.Join("&", @params.Select(_ => $"{_.Key}={WebUtility.UrlEncode(_.Value.Trim())}"));
         }
     }
 }
