@@ -9,7 +9,7 @@ namespace Derpy.Utils.Tumblr
         public string PostUrl { get; set; }
     }
 
-    public class Response
+    public class PostResponse
     {
         public long TotalPosts { get; set; }
         public List<Post> Posts { get; set; }
@@ -21,9 +21,9 @@ namespace Derpy.Utils.Tumblr
         public string Msg { get; set; }
     }
 
-    public class PostsResponse
+    public class TumblrResponse
     {
         public Meta Meta { get; set; }
-        public Response Response { get; set; }
+        public PostResponse Response { get; set; }
     }
 }

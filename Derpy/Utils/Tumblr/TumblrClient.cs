@@ -48,7 +48,7 @@ namespace Derpy.Utils.Tumblr
                 return null;
             }
 
-            var responseData = await DeserializeResponse<PostsResponse>(response);
+            var responseData = await DeserializeResponse<TumblrResponse>(response);
 
             if (responseData.Meta.Status != 200)
             {
