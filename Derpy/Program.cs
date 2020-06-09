@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
+using Derpy.Utils;
 
 namespace Derpy
 {
@@ -22,6 +23,7 @@ namespace Derpy
         private CancellationTokenSource _cancellationSource;
 
         private DiscordSocketClient Client => _services.GetRequiredService<DiscordSocketClient>();
+        private IKeyProvider KeyProvider => _services.GetRequiredService<IKeyProvider>();
 
         static async Task Main()
         {
@@ -75,6 +77,7 @@ namespace Derpy
                 {
                     SslProtocols = SslProtocols.Tls12
                 })
+                .AddSingleton<IKeyProvider, KeyProvider>()
                 .BuildServiceProvider();
         }
 
@@ -82,7 +85,7 @@ namespace Derpy
         {
             _cancellationSource = new CancellationTokenSource();
 
-            await Client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
+            await Client.LoginAsync(TokenType.Bot, KeyProvider.DiscordToken);
             await Client.StartAsync();
 
             await Task.Delay(Timeout.Infinite, _cancellationSource.Token);

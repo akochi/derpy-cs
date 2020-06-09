@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Derpy.Utils;
 using Derpy.Utils.Tumblr;
 using Moq;
 using Moq.Protected;
@@ -19,7 +20,9 @@ namespace Derpy.Tests.Utils
 
         public TumblrClientTest()
         {
-            _client = new TumblrClient(_handler.Object);
+            var keyProvider = new Mock<IKeyProvider>();
+            keyProvider.Setup(key => key.TumblrApiKey).Returns("test-api-key");
+            _client = new TumblrClient(_handler.Object, keyProvider.Object);
         }
 
         [Fact]
@@ -72,7 +75,8 @@ namespace Derpy.Tests.Utils
         {
             // Create request message that checks if correct URL is created by GetAllPostUrlsAsync
             return ItExpr.Is<HttpRequestMessage>(req
-                => req.RequestUri.AbsolutePath.Split('/', StringSplitOptions.None)[3] == blogIdentifier
+                => req.RequestUri.Query.Contains("api_key=test-api-key")
+                   && req.RequestUri.AbsolutePath.Split('/', StringSplitOptions.None)[3] == blogIdentifier
                    && (tag == null || req.RequestUri.Query.Contains($"tag={tag}")));
         }
     }

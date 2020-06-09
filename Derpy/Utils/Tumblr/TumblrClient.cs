@@ -11,7 +11,7 @@ namespace Derpy.Utils.Tumblr
     public class TumblrClient
     {
         private static Uri apiUrl = new Uri("https://api.tumblr.com/v2/blog/");
-        private static string apiKey = "hello";
+        private readonly string _apiKey;
 
         private static JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
         {
@@ -20,9 +20,10 @@ namespace Derpy.Utils.Tumblr
 
         private readonly HttpClient _httpClient;
 
-        public TumblrClient(HttpMessageHandler handler)
+        public TumblrClient(HttpMessageHandler handler, IKeyProvider keyProvider)
         {
             _httpClient = new HttpClient(handler);
+            _apiKey = keyProvider.TumblrApiKey;
         }
 
         // https://www.tumblr.com/docs/en/api/v2#posts--retrieve-published-posts
@@ -31,7 +32,7 @@ namespace Derpy.Utils.Tumblr
         {
             var @params = new Dictionary<string, string>
             {
-                { "api_key", apiKey }
+                { "api_key", _apiKey }
             };
 
             if (!string.IsNullOrWhiteSpace(tag))
