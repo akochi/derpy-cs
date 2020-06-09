@@ -9,7 +9,7 @@ using Serilog;
 
 namespace Derpy.Utils.Tumblr
 {
-    public class TumblrClient
+    public class TumblrClient : ITumblrClient
     {
         private static Uri apiUrl = new Uri("https://api.tumblr.com/v2/blog/");
         private readonly string _apiKey;

@@ -13,6 +13,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Derpy.Utils;
+using Derpy.Utils.Tumblr;
 
 namespace Derpy
 {
@@ -78,6 +79,7 @@ namespace Derpy
                     SslProtocols = SslProtocols.Tls12
                 })
                 .AddSingleton<IKeyProvider, KeyProvider>()
+                .AddSingleton<ITumblrClient, TumblrClient>()
                 .BuildServiceProvider();
         }
 
