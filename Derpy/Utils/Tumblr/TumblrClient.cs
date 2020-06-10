@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Sentry;
+using Sentry.Protocol;
 using Serilog;
 
 namespace Derpy.Utils.Tumblr
@@ -46,6 +48,7 @@ namespace Derpy.Utils.Tumblr
             if (!response.IsSuccessStatusCode)
             {
                 Log.Error("Tumblr posts GET response returned {StatusCode}", response.StatusCode);
+                SentrySdk.CaptureMessage($"Tumblr posts GET response returned {response.StatusCode}", SentryLevel.Error);
                 return null;
             }
 
@@ -63,6 +66,7 @@ namespace Derpy.Utils.Tumblr
             if (responseData.Meta.Status != 200)
             {
                 Log.Error("Tumblr posts meta field returned {StatusCode}", responseData.Meta.Status);
+                SentrySdk.CaptureMessage($"Tumblr posts meta field returned {response.StatusCode}", SentryLevel.Error);
                 return null;
             }
 
@@ -80,6 +84,7 @@ namespace Derpy.Utils.Tumblr
             catch (Exception e)
             {
                 Log.Error(e, "Error when deserializing {content}", content);
+                SentrySdk.CaptureException(e);
                 throw;
             }
         }
