@@ -11,19 +11,18 @@ namespace Derpy.Utils.Tumblr
 {
     public class TumblrClient : ITumblrClient
     {
-        private static Uri apiUrl = new Uri("https://api.tumblr.com/v2/blog/");
+        private readonly IWebClient _webClient;
         private readonly string _apiKey;
 
+        private static Uri apiUrl = new Uri("https://api.tumblr.com/v2/blog/");
         private static JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = new SnakeCaseNamingPolicy()
         };
 
-        private readonly HttpClient _httpClient;
-
-        public TumblrClient(HttpMessageHandler handler, IKeyProvider keyProvider)
+        public TumblrClient(IWebClient webClient, IKeyProvider keyProvider)
         {
-            _httpClient = new HttpClient(handler);
+            _webClient = webClient;
             _apiKey = keyProvider.TumblrApiKey;
         }
 
@@ -42,7 +41,7 @@ namespace Derpy.Utils.Tumblr
             }
 
             var uri = BuildUri(blogIdentifier, "/posts", @params);
-            var response = await _httpClient.GetAsync(uri);
+            var response = await _webClient.GetAsync(uri);
 
             if (!response.IsSuccessStatusCode)
             {

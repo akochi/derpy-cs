@@ -1,15 +1,11 @@
 using System;
 using System.IO;
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Derpy.Utils;
 using Derpy.Utils.Tumblr;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Derpy.Tests.Utils
@@ -17,22 +13,19 @@ namespace Derpy.Tests.Utils
     public class TumblrClientTest
     {
         private readonly TumblrClient _client;
-        private readonly Mock<HttpMessageHandler> _handler = new Mock<HttpMessageHandler>();
+        private readonly Mock<IWebClient> _webClient = new Mock<IWebClient>();
 
         public TumblrClientTest()
         {
             var keyProvider = new Mock<IKeyProvider>();
             keyProvider.Setup(key => key.TumblrApiKey).Returns("test-api-key");
-            _client = new TumblrClient(_handler.Object, keyProvider.Object);
+            _client = new TumblrClient(_webClient.Object, keyProvider.Object);
         }
 
         [Fact]
         public async void Test_FullResponse()
         {
-            _handler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync",
-                    TumblrRequestMessageFor("test-blog"),
-                    ItExpr.IsAny<CancellationToken>())
+            _webClient.Setup(webClient => webClient.GetAsync(UriFor("test-blog", null)))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     Content = new StreamContent(LoadJsonResponse("full"))
@@ -49,10 +42,7 @@ namespace Derpy.Tests.Utils
         [Fact]
         public async void Test_FullResponseWithTag()
         {
-            _handler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync",
-                    TumblrRequestMessageFor("test-blog", "test-tag"),
-                    ItExpr.IsAny<CancellationToken>())
+            _webClient.Setup(webClient => webClient.GetAsync(UriFor("test-blog", "test-tag")))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     Content = new StreamContent(LoadJsonResponse("full"))
@@ -69,10 +59,7 @@ namespace Derpy.Tests.Utils
         [Fact]
         public async void Test_BadResponse()
         {
-            _handler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync",
-                    TumblrRequestMessageFor("test-blog"),
-                    ItExpr.IsAny<CancellationToken>())
+            _webClient.Setup(webClient => webClient.GetAsync(UriFor("test-blog", null)))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     Content = new StreamContent(LoadJsonResponse("bad"))
@@ -86,10 +73,7 @@ namespace Derpy.Tests.Utils
         [Fact]
         public async void Test_MalformedResponse()
         {
-            _handler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync",
-                    TumblrRequestMessageFor("test-blog"),
-                    ItExpr.IsAny<CancellationToken>())
+            _webClient.Setup(webClient => webClient.GetAsync(UriFor("test-blog", null)))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     Content = new StreamContent(LoadJsonResponse("malformed"))
@@ -103,10 +87,7 @@ namespace Derpy.Tests.Utils
         [Fact]
         public async void Test_BadUrlResponse()
         {
-            _handler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync",
-                    TumblrRequestMessageFor("test-blog"),
-                    ItExpr.IsAny<CancellationToken>())
+            _webClient.Setup(webClient => webClient.GetAsync(UriFor("test-blog", null)))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.BadRequest
@@ -123,13 +104,13 @@ namespace Derpy.Tests.Utils
             return assembly.GetManifestResourceStream($"Derpy.Tests.Utils.TestResponses.{responseName}.json");
         }
 
-        private static Expression TumblrRequestMessageFor(string blogIdentifier, string tag = null)
+        private static Uri UriFor(string blogIdentifier, string tag)
         {
-            // Create request message that checks if correct URL is created by GetAllPostUrlsAsync
-            return ItExpr.Is<HttpRequestMessage>(req
-                => req.RequestUri.Query.Contains("api_key=test-api-key")
-                   && req.RequestUri.AbsolutePath.Split('/', StringSplitOptions.None)[3] == blogIdentifier
-                   && (tag == null || req.RequestUri.Query.Contains($"tag={tag}")));
+            // Create URI match that ensures correct URL is created by GetAllPostUrlsAsync
+            return It.Is<Uri>(uri
+                => uri.Query.Contains("api_key=test-api-key")
+                   && uri.AbsolutePath.Split('/', StringSplitOptions.None)[3] == blogIdentifier
+                   && (string.IsNullOrEmpty(tag) || uri.Query.Contains($"tag={tag}")));
         }
     }
 }
