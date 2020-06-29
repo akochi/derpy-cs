@@ -44,7 +44,7 @@ namespace Derpy.Palette
 
         public async Task<string> GetRandomColourPaletteUrl(string paletteType = "")
         {
-            _paletteMap.TryGetValue(paletteType, out var paletteTag);
+            var paletteTag = _paletteMap.GetValueOrDefault(paletteType);
             var allPostUrls = await _httpClient.GetAllPostUrlsAsync(RANDOM_COLOUR_PALETTE_IDENTIFIER, paletteTag);
             return allPostUrls?.PickRandom();
         }

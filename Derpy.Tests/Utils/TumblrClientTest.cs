@@ -34,9 +34,9 @@ namespace Derpy.Tests.Utils
             var urls = await _client.GetAllPostUrlsAsync("test-blog");
 
             Assert.Equal(3, urls.Length);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/3507845453", urls[0]);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/4534708483", urls[1]);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/8943561832", urls[2]);
+            Assert.Equal("https://test-blog.tumblr.com/post/3507845453", urls[0]);
+            Assert.Equal("https://test-blog.tumblr.com/post/4534708483", urls[1]);
+            Assert.Equal("https://test-blog.tumblr.com/post/8943561832", urls[2]);
         }
 
         [Fact]
@@ -51,9 +51,9 @@ namespace Derpy.Tests.Utils
             var urls = await _client.GetAllPostUrlsAsync("test-blog", "test-tag");
 
             Assert.Equal(3, urls.Length);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/3507845453", urls[0]);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/4534708483", urls[1]);
-            Assert.Equal(@"https://test-blog.tumblr.com/post/8943561832", urls[2]);
+            Assert.Equal("https://test-blog.tumblr.com/post/3507845453", urls[0]);
+            Assert.Equal("https://test-blog.tumblr.com/post/4534708483", urls[1]);
+            Assert.Equal("https://test-blog.tumblr.com/post/8943561832", urls[2]);
         }
 
         [Fact]

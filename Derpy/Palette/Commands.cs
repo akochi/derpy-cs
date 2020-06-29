@@ -72,6 +72,6 @@ namespace Derpy.Palette
         [Command("neutral")]
         [Summary("Returns a random neutral palette")]
         public async Task<RuntimeResult> GetNeutralPalette()
-            => new DiscordResult(await _service.ShowPalette("red"));
+            => new DiscordResult(await _service.ShowPalette("neutral"));
     }
 }

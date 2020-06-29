@@ -13,9 +13,6 @@ namespace Derpy.Utils
             _httpClient = new HttpClient();
         }
 
-        public async Task<HttpResponseMessage> GetAsync(Uri requestUri)
-        {
-           return await _httpClient.GetAsync(requestUri);
-        }
+        public Task<HttpResponseMessage> GetAsync(Uri requestUri) => _httpClient.GetAsync(requestUri);
     }
 }
