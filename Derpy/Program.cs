@@ -54,7 +54,7 @@ namespace Derpy
 
         private ServiceProvider LoadDependencies()
         {
-            var redisConnection = ConnectionMultiplexer.Connect("localhost");
+            var redisConnection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_HOST") ?? "localhost");
 
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
