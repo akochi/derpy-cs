@@ -1,0 +1,6 @@
+{
+    "meta": {
+        "status": 400,
+        "msg": "Bad Request"
+    }
+}

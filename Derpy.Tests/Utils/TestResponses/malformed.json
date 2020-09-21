@@ -1,0 +1,9 @@
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "blog": {
+            "title": "Test Blog",
+            "posts": 3,

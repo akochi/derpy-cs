@@ -10,6 +10,8 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Derpy.Utils;
+using Derpy.Utils.Tumblr;
 
 namespace Derpy
 {
@@ -20,6 +22,7 @@ namespace Derpy
         private CancellationTokenSource _cancellationSource;
 
         private DiscordSocketClient Client => _services.GetRequiredService<DiscordSocketClient>();
+        private IKeyProvider KeyProvider => _services.GetRequiredService<IKeyProvider>();
 
         static async Task Main()
         {
@@ -68,6 +71,10 @@ namespace Derpy
                 .AddSingleton<Roles.Service>()
                 .AddSingleton<Tips.Service>()
                 .AddSingleton<Prompt.Service>()
+                .AddSingleton<Palette.Service>()
+                .AddSingleton<IWebClient, WebClient>()
+                .AddSingleton<IKeyProvider, KeyProvider>()
+                .AddSingleton<ITumblrClient, TumblrClient>()
                 .BuildServiceProvider();
         }
 
@@ -75,7 +82,7 @@ namespace Derpy
         {
             _cancellationSource = new CancellationTokenSource();
 
-            await Client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
+            await Client.LoginAsync(TokenType.Bot, KeyProvider.DiscordToken);
             await Client.StartAsync();
 
             await Task.Delay(Timeout.Infinite, _cancellationSource.Token);
