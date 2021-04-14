@@ -9,6 +9,14 @@ namespace Derpy.Tips
     {
         readonly string[] _tips;
 
+        public static readonly string STEPS_TIP = string.Join("\n", new string[] {
+            "Step 1. copy a work.",
+            "Step 2. change the angle/pose of the work",
+            "Step 3. With only step 2 as a reference make another example of the work",
+            "Step 4. Make a piece without reference of the work.",
+            "If unsuccessful or unhappy with the results return to step 1 and repeat."
+        });
+
         public Service()
         {
             _tips = LoadTips();
@@ -24,5 +32,7 @@ namespace Derpy.Tips
         }
 
         public IResult GetTip() => new Reply(_tips.PickRandom());
+
+        public IResult GetSteps() => new Reply(STEPS_TIP);
     }
 }

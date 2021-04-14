@@ -3,7 +3,6 @@ using Discord.Commands;
 
 namespace Derpy.Tips
 {
-    [RequireOwner]
     public class Commands : ModuleBase<SocketCommandContext>
     {
         private readonly Service _service;
@@ -12,6 +11,11 @@ namespace Derpy.Tips
 
         [Command("arttip")]
         [Summary("Get a random art tip")]
+        [RequireOwner]
         public Task<RuntimeResult> GetTip() => Result.DiscordResult.Async(_service.GetTip());
+
+        [Command("steps")]
+        [Summary("The sacred texts")]
+        public Task<RuntimeResult> GetSteps() => Result.DiscordResult.Async(_service.GetTip());
     }
 }
