@@ -22,7 +22,7 @@
         packages.x86_64-darwin.default = derpy { pkgs = import nixpkgs { system = "x86_64-darwin"; }; };
         packages.x86_64-linux.default = derpy { pkgs = import nixpkgs { system = "x86_64-linux"; }; };
 
-        nixosModules.default = { pkgs }: let
+        nixosModules.default = { pkgs, ... }: let
             derpyPkg = derpy { inherit pkgs; };
         in {
             systemd.services.derpy = {
