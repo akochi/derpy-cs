@@ -32,8 +32,9 @@
                     ExecStart = "${derpyPkg}/bin/Derpy";
                     RestartSec = 5;
                     Restart = "always";
-                    WorkingDirectory = "/var/run/Derpy";
+                    WorkingDirectory = "/var/run/derpy";
                     DynamicUser = true;
+                    TemporaryFileSystem = [ "/var/run/derpy" ];
                 };
             };
         };
